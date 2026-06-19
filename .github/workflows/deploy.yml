@@ -25,25 +25,24 @@ jobs:
       - name: Installer les dépendances Composer (prod only)
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      # ── 3. Envoi des fichiers via rsync/SSH ──────────────────────────
-      - name: Déployer via SSH
-        uses: easingthemes/ssh-deploy@v5
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST:     ${{ secrets.SSH_HOST }}
-          REMOTE_USER:     ${{ secrets.SSH_USER }}
-          REMOTE_PORT:     ${{ secrets.SSH_PORT }}
-          SOURCE:          "./"
-          TARGET:          ${{ secrets.SSH_TARGET_DIR }}
-          EXCLUDE: >-
-            .git,
-            .github,
-            .env,
-            node_modules,
-            storage/logs/,
-            storage/framework/sessions/,
-            storage/framework/cache/,
-            tests/
+      # ── 3. Envoi des fichiers via rsync natif ───────────────────────
+      - name: Déployer via rsync
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          rsync -azv --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            --exclude='node_modules' \
+            --exclude='storage/logs/' \
+            --exclude='storage/framework/sessions/' \
+            --exclude='storage/framework/cache/' \
+            --exclude='tests/' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}" \
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_DIR }}/
 
       # ── 4. Commandes post-déploiement ────────────────────────────────
       # Décommenter après configuration du .env sur le serveur
