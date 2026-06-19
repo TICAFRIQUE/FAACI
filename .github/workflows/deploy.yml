@@ -45,18 +45,17 @@ jobs:
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_DIR }}/
 
       # ── 4. Commandes post-déploiement ────────────────────────────────
-      # Décommenter après configuration du .env sur le serveur
-      # - name: Post-deploy (migrate + cache)
-      #   uses: appleboy/ssh-action@v1
-      #   with:
-      #     host:     ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USER }}
-      #     key:      ${{ secrets.SSH_PRIVATE_KEY }}
-      #     port:     ${{ secrets.SSH_PORT }}
-      #     script: |
-      #       cd ${{ secrets.SSH_TARGET_DIR }}
-      #       php artisan migrate --force
-      #       php artisan config:cache
-      #       php artisan route:cache
-      #       php artisan view:cache
-      #       php artisan queue:restart
+      - name: Post-deploy (migrate + cache)
+        uses: appleboy/ssh-action@v1
+        with:
+          host:     ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key:      ${{ secrets.SSH_PRIVATE_KEY }}
+          port:     ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.SSH_TARGET_DIR }}
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan queue:restart
