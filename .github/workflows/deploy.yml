@@ -46,16 +46,17 @@ jobs:
 
       # ── 4. Commandes post-déploiement ────────────────────────────────
       - name: Post-deploy (migrate + cache)
-        uses: appleboy/ssh-action@v1
-        with:
-          host:     ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key:      ${{ secrets.SSH_PRIVATE_KEY }}
-          port:     ${{ secrets.SSH_PORT }}
-          script: |
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+              -p ${{ secrets.SSH_PORT }} \
+              -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=no \
+              -o KexAlgorithms=diffie-hellman-group-exchange-sha256 \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.SSH_TARGET_DIR }}
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan queue:restart
+          EOF
