@@ -1,0 +1,1304 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FAACI — Fondation AIESEC Alumni Côte d'Ivoire</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --faaci-navy:   #0D1F3C;
+  --faaci-steel:  #4A7FA5;
+  --faaci-silver: #9BAAB8;
+  --faaci-light:  #E8EEF4;
+  --faaci-gray:   #F5F6F8;
+  --faaci-border: #D8DDE6;
+}
+
+/* TYPOGRAPHIE — Playfair Display + DM Sans */
+*, body, .btn, .form-control, .form-select, .nav-link, .dropdown-item {
+  font-family: 'DM Sans', sans-serif !important;
+}
+h1, h2, h3, h4, h5, h6,
+.hero-title, .section-title, .activity-title,
+.event-title, .news-title, .stat-number,
+.logo-text, .about-floating-num, .event-date-day {
+  font-family: 'Playfair Display', serif !important;
+}
+
+body { color: #0A0A0A; background: #fff; }
+html { scroll-behavior: smooth; }
+
+/* COULEURS */
+.text-faaci-navy   { color: var(--faaci-navy) !important; }
+.text-faaci-steel  { color: var(--faaci-steel) !important; }
+.bg-faaci-navy   { background-color: var(--faaci-navy) !important; }
+.bg-faaci-gray   { background-color: var(--faaci-gray) !important; }
+
+.btn-faaci-navy {
+  background: var(--faaci-navy); color: #fff;
+  border: 1px solid var(--faaci-navy); font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-faaci-navy:hover { background: var(--faaci-steel); border-color: var(--faaci-steel); color: #fff; }
+
+.btn-faaci-outline-white {
+  background: transparent; color: #fff;
+  border: 1px solid rgba(255,255,255,0.3); font-weight: 500;
+  transition: all 0.2s;
+}
+.btn-faaci-outline-white:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.5); }
+
+.btn-faaci-white {
+  background: #fff; color: var(--faaci-navy);
+  border: 1px solid #fff; font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-faaci-white:hover { background: var(--faaci-light); color: var(--faaci-navy); border-color: var(--faaci-light); }
+
+/* LOGO SVG */
+.logo-svg { width: 42px; height: 42px; flex-shrink: 0; }
+.logo-text { font-weight: 700; font-size: 1.15rem; line-height: 1; color: #fff; letter-spacing: 0.02em; }
+.logo-sub {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 0.62rem; color: rgba(255,255,255,0.6);
+  letter-spacing: 0.15em; text-transform: uppercase;
+  line-height: 1; margin-top: 3px;
+}
+
+/* NAVBAR */
+.navbar-faaci {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1030; background: transparent;
+  transition: background 0.3s, box-shadow 0.3s, padding 0.3s;
+  padding: 1.15rem 0;
+}
+.navbar-faaci.scrolled {
+  background: rgba(255,255,255,0.98);
+  box-shadow: 0 1px 20px rgba(0,0,0,0.08);
+  padding: 0.65rem 0;
+}
+.navbar-faaci .nav-link {
+  color: rgba(255,255,255,0.9) !important;
+  font-weight: 500; font-size: 0.9rem;
+  margin: 0 0.5rem; padding: 0.5rem 0 !important;
+  position: relative; transition: color 0.2s;
+}
+.navbar-faaci .nav-link::after {
+  content: ''; position: absolute; bottom: -2px; left: 0;
+  width: 0; height: 2px; background: var(--faaci-steel);
+  transition: width 0.25s;
+}
+.navbar-faaci .nav-link:hover::after { width: 100%; }
+.navbar-faaci .nav-link:hover { color: #fff !important; }
+
+.navbar-faaci.scrolled .nav-link { color: #4A5568 !important; }
+.navbar-faaci.scrolled .nav-link:hover { color: var(--faaci-navy) !important; }
+.navbar-faaci.scrolled .logo-text { color: var(--faaci-navy); }
+.navbar-faaci.scrolled .logo-sub { color: var(--faaci-silver); }
+.navbar-faaci.scrolled .btn-login { color: var(--faaci-navy) !important; }
+.navbar-faaci.scrolled .btn-cta-nav {
+  background: var(--faaci-navy); color: #fff; border-color: var(--faaci-navy);
+}
+.navbar-faaci.scrolled .nav-toggle-icon { color: var(--faaci-navy) !important; }
+
+/* Dropdown À propos */
+.navbar-faaci .dropdown-menu {
+  border: 1px solid var(--faaci-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(13,31,60,0.15);
+  padding: 0.5rem; margin-top: 0.5rem !important;
+  min-width: 240px;
+}
+.navbar-faaci .dropdown-item {
+  border-radius: 0.5rem; padding: 0.65rem 0.85rem;
+  font-size: 0.9rem; color: #4A5568;
+  font-weight: 500; display: flex; align-items: center;
+  gap: 0.7rem; transition: all 0.15s;
+}
+.navbar-faaci .dropdown-item:hover { background: var(--faaci-light); color: var(--faaci-navy); }
+.navbar-faaci .dropdown-item i { color: var(--faaci-steel); font-size: 1rem; }
+
+/* HERO SLIDER */
+.hero-carousel { height: 100vh; min-height: 620px; overflow: hidden; position: relative; }
+.hero-carousel .carousel-inner, .hero-carousel .carousel-item { height: 100%; }
+
+.hero-slide {
+  position: relative; height: 100%;
+  background-size: cover; background-position: center;
+  display: flex; align-items: center;
+  padding: 5rem 0 4rem;
+}
+.hero-slide::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg,
+    rgba(13,31,60,0.93) 0%,
+    rgba(13,31,60,0.78) 45%,
+    rgba(13,31,60,0.55) 100%);
+  z-index: 1;
+}
+.hero-slide-content { position: relative; z-index: 2; width: 100%; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 999px; padding: 0.45rem 1.05rem;
+  font-size: 0.75rem; color: rgba(255,255,255,0.9);
+  font-weight: 500; margin-bottom: 1.75rem;
+}
+.hero-badge .dot {
+  width: 8px; height: 8px; background: var(--faaci-steel);
+  border-radius: 50%; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.hero-title {
+  font-weight: 700; color: #fff;
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+  line-height: 1.05; margin-bottom: 1.75rem;
+}
+.hero-title .highlight { color: var(--faaci-silver); }
+
+.hero-desc {
+  color: rgba(255,255,255,0.75);
+  font-size: 1.05rem; line-height: 1.65;
+  max-width: 560px; margin-bottom: 2.5rem;
+}
+
+.hero-buttons {
+  display: flex; flex-wrap: wrap; gap: 0.9rem;
+  margin-bottom: 2rem;
+}
+.hero-buttons .btn {
+  padding: 0.9rem 1.85rem;
+  font-size: 0.92rem; border-radius: 0.6rem;
+}
+
+.carousel-item.active .hero-slide-content > * {
+  animation: slideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.carousel-item.active .hero-slide-content > *:nth-child(1) { animation-delay: 0.15s; }
+.carousel-item.active .hero-slide-content > *:nth-child(2) { animation-delay: 0.3s; }
+.carousel-item.active .hero-slide-content > *:nth-child(3) { animation-delay: 0.45s; }
+.carousel-item.active .hero-slide-content > *:nth-child(4) { animation-delay: 0.6s; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-carousel .carousel-control-prev,
+.hero-carousel .carousel-control-next {
+  width: 48px; height: 48px; top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%; opacity: 1; z-index: 10;
+  transition: background 0.2s;
+}
+.hero-carousel .carousel-control-prev { left: 1.5rem; }
+.hero-carousel .carousel-control-next { right: 1.5rem; }
+.hero-carousel .carousel-control-prev:hover,
+.hero-carousel .carousel-control-next:hover { background: rgba(255,255,255,0.25); }
+@media (max-width: 768px) {
+  .hero-carousel .carousel-control-prev,
+  .hero-carousel .carousel-control-next { display: none; }
+}
+
+.hero-carousel .carousel-indicators { bottom: 2.5rem; margin-bottom: 0; gap: 0.6rem; }
+.hero-carousel .carousel-indicators button {
+  width: 8px !important; height: 8px !important;
+  border-radius: 50%; background: rgba(255,255,255,0.35) !important;
+  border: none !important; margin: 0 !important;
+  opacity: 1 !important; transition: all 0.3s;
+}
+.hero-carousel .carousel-indicators button.active {
+  background: #fff !important; width: 32px !important; border-radius: 4px;
+}
+
+.hero-progress {
+  position: absolute; bottom: 0; left: 0;
+  height: 3px; width: 100%;
+  background: rgba(255,255,255,0.1); z-index: 10;
+}
+.hero-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--faaci-steel), var(--faaci-silver));
+  width: 0%;
+}
+
+/* SECTIONS */
+.section { padding-top: 4.5rem; padding-bottom: 4.5rem; }
+@media (min-width: 992px) { .section { padding-top: 6rem; padding-bottom: 6rem; } }
+
+.section-eyebrow {
+  color: var(--faaci-steel); font-size: 0.78rem;
+  font-weight: 600; letter-spacing: 0.2em;
+  text-transform: uppercase; margin-bottom: 0.85rem;
+  display: block;
+}
+.section-title {
+  font-weight: 700; color: var(--faaci-navy);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15; margin-bottom: 1rem;
+}
+.section-lead { color: #6c757d; font-size: 1rem; line-height: 1.65; margin-bottom: 0; }
+
+.fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* À PROPOS */
+.about-image-wrap {
+  position: relative; border-radius: 1rem;
+  margin-right: 1.5rem; margin-bottom: 1.5rem;
+}
+.about-image {
+  width: 100%; aspect-ratio: 4/3;
+  background: linear-gradient(135deg, var(--faaci-light), var(--faaci-gray));
+  display: flex; align-items: center; justify-content: center;
+  color: var(--faaci-silver); border-radius: 1rem; overflow: hidden;
+}
+.about-floating-badge {
+  position: absolute; bottom: -1.25rem; right: -1.25rem;
+  background: var(--faaci-navy); color: #fff;
+  border-radius: 0.85rem; padding: 1.25rem 1.5rem;
+  box-shadow: 0 14px 32px rgba(13,31,60,0.22);
+  min-width: 130px;
+}
+.about-floating-num {
+  font-size: 2rem; font-weight: 700;
+  line-height: 1; display: block; margin-bottom: 0.35rem;
+}
+.about-floating-label {
+  font-size: 0.72rem; color: rgba(255,255,255,0.7);
+  line-height: 1.3;
+}
+.about-text-block > * + * { margin-top: 1.25rem; }
+
+.value-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1.15rem; margin: 1.75rem 0;
+}
+.value-item { display: flex; align-items: flex-start; gap: 0.85rem; }
+.value-icon {
+  width: 38px; height: 38px;
+  border-radius: 0.5rem;
+  background: rgba(74,127,165,0.12); color: var(--faaci-steel);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 1rem;
+}
+.value-text-title { font-weight: 600; color: var(--faaci-navy); font-size: 0.9rem; margin: 0 0 0.2rem 0; }
+.value-text-desc { color: #6c757d; font-size: 0.78rem; margin: 0; line-height: 1.4; }
+
+/* STATS */
+.stats-section { background: var(--faaci-navy); padding: 3.5rem 0; }
+.stat-block { text-align: center; }
+.stat-number {
+  font-weight: 700; color: #fff; font-size: 2.5rem;
+  line-height: 1; font-variant-numeric: tabular-nums;
+}
+@media (min-width: 992px) { .stat-number { font-size: 3rem; } }
+.stat-label { color: rgba(255,255,255,0.55); font-size: 0.8rem; margin-top: 0.65rem; }
+
+/* ACTIVITES */
+.activity-card {
+  background: #fff; border-radius: 1rem;
+  padding: 2rem; height: 100%;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+.activity-card:hover { box-shadow: 0 16px 40px rgba(13,31,60,0.08); transform: translateY(-4px); }
+.activity-icon {
+  width: 48px; height: 48px;
+  border-radius: 0.75rem;
+  background: rgba(74,127,165,0.12); color: var(--faaci-steel);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; margin-bottom: 1.5rem;
+  transition: all 0.25s;
+}
+.activity-card:hover .activity-icon { background: var(--faaci-navy); color: #fff; }
+.activity-title { font-weight: 700; color: var(--faaci-navy); font-size: 1.2rem; margin-bottom: 0.85rem; }
+.activity-desc { color: #6c757d; font-size: 0.9rem; line-height: 1.6; margin: 0; }
+
+.activity-card-cta {
+  background: var(--faaci-navy); color: #fff;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.activity-card-cta .activity-icon { background: rgba(255,255,255,0.1); color: #fff; }
+.activity-card-cta .activity-title { color: #fff; }
+.activity-card-cta .activity-desc { color: rgba(255,255,255,0.65); margin-bottom: 1.75rem; }
+
+/* JOIN */
+.join-section { background: var(--faaci-navy); position: relative; overflow: hidden; }
+.join-section::before, .join-section::after { content: ''; position: absolute; border-radius: 50%; filter: blur(80px); }
+.join-section::before { top: 0; right: 0; width: 400px; height: 400px; background: var(--faaci-steel); opacity: 0.08; }
+.join-section::after { bottom: 0; left: 0; width: 350px; height: 350px; background: var(--faaci-silver); opacity: 0.05; }
+.join-section .container { position: relative; z-index: 2; }
+
+.join-step { text-align: center; }
+.join-step-num {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(74,127,165,0.3);
+  border: 1px solid rgba(74,127,165,0.4);
+  color: #fff;
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 700; font-size: 1.25rem;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+.join-step-title {
+  color: #fff; font-weight: 600; font-size: 1rem;
+  margin-bottom: 0.6rem;
+  font-family: 'DM Sans', sans-serif !important;
+}
+.join-step-desc { color: rgba(255,255,255,0.55); font-size: 0.85rem; line-height: 1.55; margin: 0; }
+
+/* EVENEMENTS */
+.event-card { cursor: pointer; }
+.event-image {
+  aspect-ratio: 16/10; border-radius: 0.85rem;
+  position: relative; margin-bottom: 1.25rem; overflow: hidden;
+}
+.event-date-badge {
+  position: absolute; top: 1rem; left: 1rem;
+  background: #fff; border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem; text-align: center;
+  min-width: 56px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.event-date-day { font-weight: 700; color: var(--faaci-steel); font-size: 1.3rem; line-height: 1; }
+.event-date-month {
+  font-size: 0.65rem; color: var(--faaci-navy);
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; margin-top: 0.25rem;
+}
+.event-type-badge {
+  position: absolute; top: 1rem; right: 1rem;
+  color: #fff; font-size: 0.7rem; font-weight: 500;
+  padding: 0.3rem 0.75rem; border-radius: 999px;
+}
+.event-title {
+  font-weight: 700; color: var(--faaci-navy);
+  font-size: 1.1rem; line-height: 1.35;
+  margin-bottom: 0.5rem; transition: color 0.2s;
+}
+.event-card:hover .event-title { color: var(--faaci-steel); }
+.event-desc { color: #6c757d; font-size: 0.85rem; line-height: 1.55; margin-bottom: 0.85rem; }
+.event-meta { display: flex; gap: 1.15rem; font-size: 0.75rem; color: #adb5bd; }
+.event-meta span { display: inline-flex; align-items: center; gap: 0.35rem; }
+
+/* ACTUALITES */
+.news-card { background: #fff; border-radius: 0.85rem; overflow: hidden; height: 100%; transition: box-shadow 0.25s; }
+.news-card:hover { box-shadow: 0 12px 30px rgba(13,31,60,0.08); }
+.news-image {
+  aspect-ratio: 16/10; background: var(--faaci-light);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--faaci-silver); font-size: 2rem;
+}
+.news-body { padding: 1.5rem; }
+.news-meta { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.85rem; }
+.news-category {
+  background: rgba(13,31,60,0.08); color: var(--faaci-navy);
+  font-size: 0.7rem; font-weight: 500;
+  padding: 0.3rem 0.75rem; border-radius: 999px;
+}
+.news-date { font-size: 0.75rem; color: #adb5bd; }
+.news-title { font-weight: 700; color: var(--faaci-navy); font-size: 1.05rem; line-height: 1.35; margin-bottom: 0.55rem; }
+.news-title a { color: inherit; text-decoration: none; transition: color 0.2s; }
+.news-title a:hover { color: var(--faaci-steel); }
+.news-excerpt { color: #6c757d; font-size: 0.85rem; line-height: 1.55; margin: 0; }
+
+/* CONTACT */
+.contact-info-item { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+.contact-info-icon {
+  width: 42px; height: 42px; border-radius: 0.5rem;
+  background: rgba(74,127,165,0.12); color: var(--faaci-steel);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.contact-info-label { font-weight: 600; color: var(--faaci-navy); font-size: 0.9rem; margin: 0 0 0.2rem 0; }
+.contact-info-value { color: #6c757d; font-size: 0.9rem; margin: 0; line-height: 1.4; }
+
+.contact-form { background: #fff; padding: 2rem; border-radius: 1rem; }
+.contact-form .form-label { font-size: 0.85rem; font-weight: 500; color: var(--faaci-navy); margin-bottom: 0.45rem; }
+.contact-form .form-control, .contact-form .form-select {
+  border: 1px solid var(--faaci-border);
+  padding: 0.8rem 1rem; font-size: 0.9rem; border-radius: 0.55rem;
+}
+.contact-form .form-control:focus, .contact-form .form-select:focus {
+  border-color: var(--faaci-steel);
+  box-shadow: 0 0 0 3px rgba(74,127,165,0.1);
+}
+
+/* FOOTER */
+.footer { background: var(--faaci-navy); color: #fff; padding: 4rem 0 2rem; }
+.footer-title {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 0.82rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.85); margin-bottom: 1.35rem;
+}
+.footer-link {
+  color: rgba(255,255,255,0.5); font-size: 0.9rem;
+  text-decoration: none; display: block;
+  padding: 0.35rem 0; transition: color 0.2s;
+}
+.footer-link:hover { color: #fff; }
+
+.social-link {
+  width: 36px; height: 36px; border-radius: 0.5rem;
+  background: rgba(255,255,255,0.1); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-right: 0.5rem; transition: background 0.2s;
+  text-decoration: none;
+}
+.social-link:hover { background: var(--faaci-steel); color: #fff; }
+.social-link.whatsapp:hover { background: #25D366; }
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 1.5rem; margin-top: 2.5rem;
+  font-size: 0.8rem; color: rgba(255,255,255,0.4);
+}
+
+/* COMPTEUR VISITES */
+.visit-counter {
+  position: fixed; bottom: 20px; left: 20px;
+  z-index: 1020;
+  background: rgba(13,31,60,0.95);
+  backdrop-filter: blur(10px); color: #fff;
+  border-radius: 999px; padding: 0.6rem 1.1rem;
+  box-shadow: 0 8px 24px rgba(13,31,60,0.25);
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.visit-counter.visible { opacity: 1; transform: translateY(0); }
+.visit-counter i { color: var(--faaci-steel); font-size: 1rem; }
+.visit-counter-number {
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 700; color: #fff; font-variant-numeric: tabular-nums;
+}
+.visit-counter-label { color: rgba(255,255,255,0.55); font-size: 0.75rem; }
+@media (max-width: 576px) {
+  .visit-counter { font-size: 0.78rem; padding: 0.5rem 0.9rem; bottom: 12px; left: 12px; }
+}
+
+/* BACK TO TOP */
+.back-to-top {
+  position: fixed; bottom: 20px; right: 20px;
+  z-index: 1020; width: 42px; height: 42px;
+  background: var(--faaci-navy); color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(13,31,60,0.25);
+  opacity: 0; transform: translateY(20px);
+  transition: all 0.3s;
+}
+.back-to-top.visible { opacity: 1; transform: translateY(0); }
+.back-to-top:hover { background: var(--faaci-steel); color: #fff; }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar" class="navbar-faaci">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between">
+
+      <a href="{{ route('accueil') }}" class="d-flex align-items-center gap-2 text-decoration-none">
+        <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="clipCircle"><circle cx="50" cy="50" r="42"/></clipPath>
+          </defs>
+          <circle cx="50" cy="50" r="42" fill="#4A7FA5"/>
+          <g clip-path="url(#clipCircle)">
+            <rect x="0" y="32" width="100" height="9" fill="#C8D1DC"/>
+            <rect x="0" y="46" width="100" height="9" fill="#C8D1DC"/>
+            <rect x="0" y="60" width="100" height="9" fill="#C8D1DC"/>
+          </g>
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#0D1F3C" stroke-width="2"/>
+        </svg>
+        <div class="d-none d-sm-block">
+          <div class="logo-text">FAACI</div>
+          <div class="logo-sub">Alumni AIESEC CI</div>
+        </div>
+      </a>
+
+      <div class="d-none d-lg-flex align-items-center">
+        <div class="dropdown">
+          <a class="nav-link dropdown-toggle text-decoration-none" href="#" id="aboutDropdown" data-bs-toggle="dropdown">
+            À propos
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ route('apropos.mission') }}"><i class="bi bi-bullseye"></i>Mission</a></li>
+            <li><a class="dropdown-item" href="{{ route('apropos.vision') }}"><i class="bi bi-eye"></i>Vision</a></li>
+            <li><a class="dropdown-item" href="{{ route('apropos.valeurs') }}"><i class="bi bi-shield-check"></i>Valeurs</a></li>
+            <li><a class="dropdown-item" href="{{ route('apropos.equipe') }}"><i class="bi bi-people"></i>Équipe dirigeante</a></li>
+            <li><a class="dropdown-item" href="{{ route('apropos.histoire') }}"><i class="bi bi-clock-history"></i>Histoire FAACI</a></li>
+          </ul>
+        </div>
+        <a href="#activites" class="nav-link">Activités</a>
+        <a href="#evenements" class="nav-link">Événements</a>
+        <a href="#actualites" class="nav-link">Actualités</a>
+        <a href="#galerie" class="nav-link">Galerie</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </div>
+
+      <div class="d-none d-lg-flex align-items-center gap-3">
+        <a href="{{ route('login') }}" class="btn-login text-white text-decoration-none small fw-medium">Connexion</a>
+        <a href="{{ route('adhesion') }}" class="btn-cta-nav btn btn-faaci-white px-4 py-2 rounded-3 small">Devenir membre</a>
+      </div>
+
+      <button class="d-lg-none btn p-2 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+        <i class="bi bi-list fs-2 text-white nav-toggle-icon"></i>
+      </button>
+
+    </div>
+  </div>
+</nav>
+
+<!-- OFFCANVAS MOBILE -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" style="max-width: 320px;">
+  <div class="offcanvas-header border-bottom">
+    <div class="d-flex align-items-center gap-2">
+      <svg class="logo-svg" viewBox="0 0 100 100">
+        <defs><clipPath id="clipM"><circle cx="50" cy="50" r="42"/></clipPath></defs>
+        <circle cx="50" cy="50" r="42" fill="#4A7FA5"/>
+        <g clip-path="url(#clipM)">
+          <rect x="0" y="32" width="100" height="9" fill="#C8D1DC"/>
+          <rect x="0" y="46" width="100" height="9" fill="#C8D1DC"/>
+          <rect x="0" y="60" width="100" height="9" fill="#C8D1DC"/>
+        </g>
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#0D1F3C" stroke-width="2"/>
+      </svg>
+      <div>
+        <div class="logo-text text-faaci-navy">FAACI</div>
+        <div class="logo-sub" style="color: var(--faaci-silver)">Alumni AIESEC CI</div>
+      </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="d-flex flex-column gap-1">
+      <div class="accordion accordion-flush" id="aboutAccordion">
+        <div class="accordion-item border-0">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed bg-transparent shadow-none p-3 fw-medium text-faaci-navy" type="button" data-bs-toggle="collapse" data-bs-target="#aboutCollapse">
+              À propos
+            </button>
+          </h2>
+          <div id="aboutCollapse" class="accordion-collapse collapse" data-bs-parent="#aboutAccordion">
+            <div class="accordion-body p-2">
+              <a href="{{ route('apropos.mission') }}" class="text-decoration-none d-block p-2 ps-4 rounded text-faaci-navy small" data-bs-dismiss="offcanvas">Mission</a>
+              <a href="{{ route('apropos.vision') }}" class="text-decoration-none d-block p-2 ps-4 rounded text-faaci-navy small" data-bs-dismiss="offcanvas">Vision</a>
+              <a href="{{ route('apropos.valeurs') }}" class="text-decoration-none d-block p-2 ps-4 rounded text-faaci-navy small" data-bs-dismiss="offcanvas">Valeurs</a>
+              <a href="{{ route('apropos.equipe') }}" class="text-decoration-none d-block p-2 ps-4 rounded text-faaci-navy small" data-bs-dismiss="offcanvas">Équipe dirigeante</a>
+              <a href="{{ route('apropos.histoire') }}" class="text-decoration-none d-block p-2 ps-4 rounded text-faaci-navy small" data-bs-dismiss="offcanvas">Histoire FAACI</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="#activites" class="text-decoration-none p-3 rounded text-faaci-navy fw-medium" data-bs-dismiss="offcanvas">Activités</a>
+      <a href="#evenements" class="text-decoration-none p-3 rounded text-faaci-navy fw-medium" data-bs-dismiss="offcanvas">Événements</a>
+      <a href="#actualites" class="text-decoration-none p-3 rounded text-faaci-navy fw-medium" data-bs-dismiss="offcanvas">Actualités</a>
+      <a href="#galerie" class="text-decoration-none p-3 rounded text-faaci-navy fw-medium" data-bs-dismiss="offcanvas">Galerie</a>
+      <a href="#contact" class="text-decoration-none p-3 rounded text-faaci-navy fw-medium" data-bs-dismiss="offcanvas">Contact</a>
+      <hr class="my-3"/>
+      <a href="{{ route('login') }}" class="btn btn-outline-dark rounded-3 mb-2">Connexion</a>
+      <a href="{{ route('adhesion') }}" class="btn btn-faaci-navy rounded-3">Devenir membre</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- HERO SLIDER -->
+<section class="hero-carousel">
+  <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="6000">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+    </div>
+    <div class="carousel-inner">
+
+      <div class="carousel-item active">
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1920&q=80');">
+          <div class="container hero-slide-content">
+            <div class="row">
+              <div class="col-lg-8 col-xl-7">
+                <div class="hero-badge">
+                  <span class="dot"></span>
+                  <span>Fondation AIESEC Alumni Côte d'Ivoire</span>
+                </div>
+                <h1 class="hero-title">Le réseau des<br><span class="highlight">Alumni AIESEC</span><br>en Côte d'Ivoire.</h1>
+                <p class="hero-desc">Un hub qui réunit les anciens d'AIESEC CI autour d'une ambition commune : connecter, collaborer, faire grandir le réseau.</p>
+                <div class="hero-buttons">
+                  <a href="{{ route('adhesion') }}" class="btn btn-faaci-white">Rejoindre le réseau</a>
+                  <a href="#about" class="btn btn-faaci-outline-white">Découvrir la FAACI <i class="bi bi-arrow-right ms-1"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-item">
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1920&q=80');">
+          <div class="container hero-slide-content">
+            <div class="row">
+              <div class="col-lg-8 col-xl-7">
+                <div class="hero-badge">
+                  <span class="dot"></span>
+                  <span>Un réseau d'expertise et d'opportunités</span>
+                </div>
+                <h1 class="hero-title">Connectez-vous,<br><span class="highlight">collaborez,</span><br>grandissez.</h1>
+                <p class="hero-desc">Annuaire des membres, base des entreprises Alumni, opportunités d'affaires et offres d'emploi exclusivement réservées au réseau.</p>
+                <div class="hero-buttons">
+                  <a href="{{ route('adhesion') }}" class="btn btn-faaci-white">Devenir membre</a>
+                  <a href="#activites" class="btn btn-faaci-outline-white">Nos activités <i class="bi bi-arrow-right ms-1"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-item">
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&q=80');">
+          <div class="container hero-slide-content">
+            <div class="row">
+              <div class="col-lg-8 col-xl-7">
+                <div class="hero-badge">
+                  <span class="dot"></span>
+                  <span>Échanger, apprendre, bâtir ensemble</span>
+                </div>
+                <h1 class="hero-title">Des rendez-vous<br>qui <span class="highlight">rassemblent</span><br>le réseau.</h1>
+                <p class="hero-desc">Rencontres, pitchs, webinaires et sessions de networking. La FAACI organise des événements pour que les Alumni continuent à apprendre et se connecter.</p>
+                <div class="hero-buttons">
+                  <a href="#evenements" class="btn btn-faaci-white">Voir les événements</a>
+                  <a href="{{ route('adhesion') }}" class="btn btn-faaci-outline-white">Rejoindre la FAACI <i class="bi bi-arrow-right ms-1"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+      <i class="bi bi-chevron-left text-white fs-5"></i>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+      <i class="bi bi-chevron-right text-white fs-5"></i>
+    </button>
+
+    <div class="hero-progress">
+      <div class="hero-progress-bar" id="heroProgressBar"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- À PROPOS -->
+<section id="about" class="section bg-white">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+
+      <div class="col-lg-6 fade-in order-2 order-lg-1">
+        <div class="about-image-wrap">
+          <div class="about-image">
+            <div class="text-center">
+              <i class="bi bi-image fs-1 d-block mb-2"></i>
+              <small>Photo du réseau FAACI</small>
+            </div>
+          </div>
+          <div class="about-floating-badge">
+            <span class="about-floating-num">10+</span>
+            <span class="about-floating-label">années<br>d'engagement</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 fade-in order-1 order-lg-2">
+        <div class="about-text-block">
+          <span class="section-eyebrow">À propos de la FAACI</span>
+          <h2 class="section-title">Une communauté d'Alumni engagés</h2>
+          <p class="section-lead">La Fondation AIESEC Alumni Côte d'Ivoire (FAACI) regroupe les anciens membres d'AIESEC en Côte d'Ivoire. Notre mission : maintenir et renforcer les liens du réseau, partager les opportunités économiques et professionnelles, et porter ensemble des initiatives à fort impact.</p>
+          <p class="section-lead">La FAACI est un espace exclusif réservé à ses membres : annuaire, entreprises Alumni, opportunités d'affaires, offres d'emploi et événements y vivent à l'abri du grand public.</p>
+        </div>
+
+        <div class="value-grid">
+          <div class="value-item">
+            <div class="value-icon"><i class="bi bi-people"></i></div>
+            <div>
+              <p class="value-text-title">Communauté</p>
+              <p class="value-text-desc">Un réseau soudé et bienveillant</p>
+            </div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon"><i class="bi bi-lightning-charge"></i></div>
+            <div>
+              <p class="value-text-title">Excellence</p>
+              <p class="value-text-desc">Un engagement de haut niveau</p>
+            </div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon"><i class="bi bi-shield-check"></i></div>
+            <div>
+              <p class="value-text-title">Confiance</p>
+              <p class="value-text-desc">Transparence et intégrité</p>
+            </div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon"><i class="bi bi-award"></i></div>
+            <div>
+              <p class="value-text-title">Impact</p>
+              <p class="value-text-desc">Des actions concrètes et durables</p>
+            </div>
+          </div>
+        </div>
+
+        <a href="{{ route('apropos.mission') }}" class="text-decoration-none fw-semibold text-faaci-navy">
+          En savoir plus sur notre mission <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-6 col-lg-3 fade-in">
+        <div class="stat-block"><div class="stat-number counter" data-target="247">0</div><div class="stat-label">Membres actifs</div></div>
+      </div>
+      <div class="col-6 col-lg-3 fade-in">
+        <div class="stat-block"><div class="stat-number counter" data-target="38">0</div><div class="stat-label">Événements / an</div></div>
+      </div>
+      <div class="col-6 col-lg-3 fade-in">
+        <div class="stat-block"><div class="stat-number counter" data-target="62">0</div><div class="stat-label">Entreprises Alumni</div></div>
+      </div>
+      <div class="col-6 col-lg-3 fade-in">
+        <div class="stat-block"><div class="stat-number counter" data-target="12">0</div><div class="stat-label">Pays représentés</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ACTIVITES -->
+<section id="activites" class="section bg-faaci-gray">
+  <div class="container">
+    <div class="text-center mb-5 fade-in">
+      <span class="section-eyebrow">Ce que la FAACI offre</span>
+      <h2 class="section-title">Nos activités</h2>
+      <p class="section-lead mx-auto" style="max-width: 580px;">Une plateforme complète, exclusivement réservée aux Alumni AIESEC de Côte d'Ivoire.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4 fade-in">
+        <div class="activity-card">
+          <div class="activity-icon"><i class="bi bi-people"></i></div>
+          <h3 class="activity-title">Annuaire des membres</h3>
+          <p class="activity-desc">Retrouvez tous les Alumni AIESEC CI : profils enrichis, expertises, secteurs d'activité, contacts professionnels.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <div class="activity-card">
+          <div class="activity-icon"><i class="bi bi-buildings"></i></div>
+          <h3 class="activity-title">Entreprises Alumni</h3>
+          <p class="activity-desc">Base centralisée des sociétés fondées ou dirigées par des membres FAACI. Un annuaire économique unique.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <div class="activity-card">
+          <div class="activity-icon"><i class="bi bi-graph-up-arrow"></i></div>
+          <h3 class="activity-title">Opportunités d'affaires</h3>
+          <p class="activity-desc">Appels d'offres, partenariats, sous-traitance, recherche de fournisseurs : publiez et consultez en interne.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <div class="activity-card">
+          <div class="activity-icon"><i class="bi bi-briefcase"></i></div>
+          <h3 class="activity-title">Offres d'emploi</h3>
+          <p class="activity-desc">Recrutez ou trouvez votre prochaine opportunité professionnelle au sein du réseau Alumni.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <div class="activity-card">
+          <div class="activity-icon"><i class="bi bi-calendar-event"></i></div>
+          <h3 class="activity-title">Événements & pitchs</h3>
+          <p class="activity-desc">Calendrier complet : rencontres, networking, webinaires, sessions de pitch et assemblées générales.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <div class="activity-card activity-card-cta">
+          <div>
+            <div class="activity-icon"><i class="bi bi-plus-lg"></i></div>
+            <h3 class="activity-title">Et plus encore</h3>
+            <p class="activity-desc">L'espace membre offre un dashboard complet pour piloter votre engagement et profiter pleinement du réseau.</p>
+          </div>
+          <a href="{{ route('adhesion') }}" class="btn btn-faaci-white w-100 mt-3">Rejoindre la FAACI <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- COMMENT REJOINDRE -->
+<section class="section join-section">
+  <div class="container">
+    <div class="text-center mb-5 fade-in">
+      <span class="section-eyebrow">Comment rejoindre</span>
+      <h2 class="section-title text-white">Devenir membre en 4 étapes</h2>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3 fade-in">
+        <div class="join-step">
+          <div class="join-step-num">1</div>
+          <h3 class="join-step-title">Demande d'adhésion</h3>
+          <p class="join-step-desc">Remplissez le formulaire et indiquez votre parcours AIESEC.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 fade-in">
+        <div class="join-step">
+          <div class="join-step-num">2</div>
+          <h3 class="join-step-title">Validation</h3>
+          <p class="join-step-desc">Le bureau de la FAACI examine et valide votre demande.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 fade-in">
+        <div class="join-step">
+          <div class="join-step-num">3</div>
+          <h3 class="join-step-title">Activation</h3>
+          <p class="join-step-desc">Vous recevez vos accès et complétez votre profil membre.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 fade-in">
+        <div class="join-step">
+          <div class="join-step-num">4</div>
+          <h3 class="join-step-title">Bienvenue !</h3>
+          <p class="join-step-desc">Annuaire, opportunités, événements : tout vous est ouvert.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-5 fade-in">
+      <a href="{{ route('adhesion') }}" class="btn btn-faaci-white px-5 py-3 rounded-3">Faire une demande maintenant</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- EVENEMENTS -->
+<section id="evenements" class="section bg-white">
+  <div class="container">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-5 fade-in">
+      <div>
+        <span class="section-eyebrow">Agenda</span>
+        <h2 class="section-title mb-0">Événements à venir</h2>
+      </div>
+      <a href="{{ route('evenements.index') }}" class="text-decoration-none text-faaci-navy fw-semibold">Voir tout le calendrier <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4 fade-in">
+        <article class="event-card">
+          <div class="event-image" style="background: linear-gradient(135deg, var(--faaci-navy), var(--faaci-steel));">
+            <div class="event-date-badge"><div class="event-date-day">28</div><div class="event-date-month">Juin</div></div>
+            <div class="event-type-badge" style="background: rgba(74,127,165,0.95);">Networking</div>
+          </div>
+          <h3 class="event-title">Soirée Networking Alumni — Abidjan Plateau</h3>
+          <p class="event-desc line-clamp-2">Rencontre informelle entre membres FAACI autour d'un cocktail. L'occasion de tisser des liens et d'échanger.</p>
+          <div class="event-meta">
+            <span><i class="bi bi-clock"></i> 19h00</span>
+            <span><i class="bi bi-geo-alt"></i> Plateau, Abidjan</span>
+          </div>
+        </article>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <article class="event-card">
+          <div class="event-image" style="background: linear-gradient(135deg, var(--faaci-steel), var(--faaci-navy));">
+            <div class="event-date-badge"><div class="event-date-day">12</div><div class="event-date-month">Juil</div></div>
+            <div class="event-type-badge" style="background: rgba(13,31,60,0.95);">Webinaire</div>
+          </div>
+          <h3 class="event-title">Webinaire — Entrepreneuriat et financement en Afrique</h3>
+          <p class="event-desc line-clamp-2">Session en ligne animée par des entrepreneurs Alumni sur les leviers de financement actuels sur le continent.</p>
+          <div class="event-meta">
+            <span><i class="bi bi-clock"></i> 18h00</span>
+            <span><i class="bi bi-camera-video"></i> En ligne</span>
+          </div>
+        </article>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <article class="event-card">
+          <div class="event-image" style="background: linear-gradient(135deg, var(--faaci-navy), var(--faaci-steel), var(--faaci-navy));">
+            <div class="event-date-badge"><div class="event-date-day">04</div><div class="event-date-month">Août</div></div>
+            <div class="event-type-badge" style="background: rgba(245,158,11,0.95);">Pitch</div>
+          </div>
+          <h3 class="event-title">Session de Pitch — Projets membres FAACI</h3>
+          <p class="event-desc line-clamp-2">Présentation de projets soumis par les membres devant le réseau. Échanges et retours constructifs.</p>
+          <div class="event-meta">
+            <span><i class="bi bi-clock"></i> 16h00</span>
+            <span><i class="bi bi-geo-alt"></i> Cocody, Abidjan</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ACTUALITES -->
+<section id="actualites" class="section bg-faaci-gray">
+  <div class="container">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-5 fade-in">
+      <div>
+        <span class="section-eyebrow">Vie du réseau</span>
+        <h2 class="section-title mb-0">Actualités</h2>
+      </div>
+      <a href="{{ route('actualites.index') }}" class="text-decoration-none text-faaci-navy fw-semibold">Toutes les actualités <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4 fade-in">
+        <article class="news-card">
+          <div class="news-image"><i class="bi bi-image"></i></div>
+          <div class="news-body">
+            <div class="news-meta"><span class="news-category">Communiqué</span><span class="news-date">15 juin 2025</span></div>
+            <h3 class="news-title"><a href="#">Lancement officiel de la plateforme numérique FAACI</a></h3>
+            <p class="news-excerpt line-clamp-2">Le réseau Alumni AIESEC CI se dote enfin de son hub numérique. Annuaire, opportunités, événements et bien plus.</p>
+          </div>
+        </article>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <article class="news-card">
+          <div class="news-image"><i class="bi bi-image"></i></div>
+          <div class="news-body">
+            <div class="news-meta"><span class="news-category" style="background:rgba(25,135,84,0.1); color:#198754;">Événement</span><span class="news-date">8 mai 2025</span></div>
+            <h3 class="news-title"><a href="#">Retour sur l'Assemblée Générale annuelle 2025</a></h3>
+            <p class="news-excerpt line-clamp-2">Les membres FAACI se sont réunis pour dresser le bilan et voter les orientations stratégiques de l'année.</p>
+          </div>
+        </article>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in">
+        <article class="news-card">
+          <div class="news-image"><i class="bi bi-image"></i></div>
+          <div class="news-body">
+            <div class="news-meta"><span class="news-category" style="background:rgba(245,158,11,0.1); color:#d97706;">Annonce</span><span class="news-date">2 avril 2025</span></div>
+            <h3 class="news-title"><a href="#">Nouveau cycle d'adhésion — Inscriptions ouvertes</a></h3>
+            <p class="news-excerpt line-clamp-2">La FAACI ouvre ses portes à de nouveaux membres pour le second semestre 2025. Détails et conditions.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA ADHESION -->
+<section class="section bg-white">
+  <div class="container">
+    <div class="row justify-content-center fade-in">
+      <div class="col-lg-7 text-center">
+        <span class="section-eyebrow">Rejoignez-nous</span>
+        <h2 class="section-title">Prêt à faire partie<br>du réseau FAACI ?</h2>
+        <p class="section-lead mb-4 mx-auto" style="max-width: 540px;">Devenez membre et accédez à l'annuaire des Alumni, aux opportunités d'affaires, aux offres d'emploi et à tous les événements du réseau.</p>
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+          <a href="{{ route('adhesion') }}" class="btn btn-faaci-navy px-4 py-3 rounded-3">Faire une demande d'adhésion</a>
+          <a href="#contact" class="btn btn-outline-dark px-4 py-3 rounded-3">Nous contacter d'abord</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CONTACT -->
+<section id="contact" class="section bg-faaci-gray">
+  <div class="container">
+    <div class="row g-5">
+
+      <div class="col-lg-5 fade-in">
+        <span class="section-eyebrow">Nous joindre</span>
+        <h2 class="section-title">Contactez la FAACI</h2>
+        <p class="section-lead mb-4">Une question, une demande d'adhésion ou une proposition de partenariat ? Notre équipe vous répond dans les 48h.</p>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon"><i class="bi bi-envelope"></i></div>
+          <div><p class="contact-info-label">Email</p><p class="contact-info-value">contact@faaci.ci</p></div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-info-icon"><i class="bi bi-telephone"></i></div>
+          <div><p class="contact-info-label">Téléphone</p><p class="contact-info-value">+225 07 00 00 00 00</p></div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-info-icon"><i class="bi bi-geo-alt"></i></div>
+          <div><p class="contact-info-label">Adresse</p><p class="contact-info-value">Plateau, Abidjan, Côte d'Ivoire</p></div>
+        </div>
+      </div>
+
+      <div class="col-lg-7 fade-in">
+        <form action="{{ route('contact.send') }}" method="POST" class="contact-form">
+          @csrf
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">Prénom & Nom</label>
+              <input type="text" name="nom" class="form-control" placeholder="Jean Kouassi" required>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" placeholder="jean@exemple.com" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Sujet</label>
+              <select name="sujet" class="form-select" required>
+                <option value="">Choisissez un sujet</option>
+                <option>Demande d'adhésion</option>
+                <option>Question générale</option>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+                <option>Partenariat</option>
+                <option>Autre</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Message</label>
+              <textarea name="message" rows="5" class="form-control" placeholder="Votre message..." required></textarea>
+            </div>
+            <div class="col-12 mt-2">
+              <button type="submit" class="btn btn-faaci-navy w-100 py-3 rounded-3">Envoyer le message</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-lg-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <svg class="logo-svg" viewBox="0 0 100 100">
+            <defs><clipPath id="clipF"><circle cx="50" cy="50" r="42"/></clipPath></defs>
+            <circle cx="50" cy="50" r="42" fill="#4A7FA5"/>
+            <g clip-path="url(#clipF)">
+              <rect x="0" y="32" width="100" height="9" fill="#C8D1DC"/>
+              <rect x="0" y="46" width="100" height="9" fill="#C8D1DC"/>
+              <rect x="0" y="60" width="100" height="9" fill="#C8D1DC"/>
+            </g>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#0D1F3C" stroke-width="2"/>
+          </svg>
+          <div>
+            <div class="logo-text">FAACI</div>
+            <div class="logo-sub">Alumni AIESEC CI</div>
+          </div>
+        </div>
+        <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; line-height: 1.65; margin-bottom: 1.25rem;">Le réseau des Alumni AIESEC en Côte d'Ivoire. Connecter, collaborer, bâtir ensemble.</p>
+        <div>
+          <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="social-link whatsapp"><i class="bi bi-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-3">
+        <h6 class="footer-title">Navigation</h6>
+        <a href="#about" class="footer-link">À propos</a>
+        <a href="#activites" class="footer-link">Activités</a>
+        <a href="#evenements" class="footer-link">Événements</a>
+        <a href="#actualites" class="footer-link">Actualités</a>
+        <a href="#galerie" class="footer-link">Galerie</a>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-2">
+        <h6 class="footer-title">Espace membre</h6>
+        <a href="{{ route('login') }}" class="footer-link">Connexion</a>
+        <a href="{{ route('adhesion') }}" class="footer-link">Devenir membre</a>
+      </div>
+
+      <div class="col-12 col-md-4 col-lg-3">
+        <h6 class="footer-title">Contact</h6>
+        <p class="footer-link mb-1">contact@faaci.ci</p>
+        <p class="footer-link mb-1">+225 07 00 00 00 00</p>
+        <p class="footer-link mb-0">Plateau, Abidjan<br>Côte d'Ivoire</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+      <p class="mb-0">© 2025 Fondation AIESEC Alumni CI — FAACI. Tous droits réservés.</p>
+      <div class="d-flex gap-3">
+        <a href="#" class="footer-link mb-0">Mentions légales</a>
+        <a href="#" class="footer-link mb-0">Confidentialité</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- COMPTEUR VISITES -->
+<div class="visit-counter" id="visitCounter">
+  <i class="bi bi-eye"></i>
+  <span class="visit-counter-number" id="visitCount">0</span>
+  <span class="visit-counter-label">visites</span>
+</div>
+
+<!-- BACK TO TOP -->
+<a href="#" class="back-to-top" id="backToTop"><i class="bi bi-arrow-up"></i></a>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 30) navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+});
+
+const heroCarousel = document.getElementById('heroCarousel');
+const progressBar = document.getElementById('heroProgressBar');
+const SLIDE_DURATION = 6000;
+let progressStart = performance.now();
+let paused = false;
+
+function updateProgress(now) {
+  if (!paused) {
+    const elapsed = now - progressStart;
+    const pct = Math.min((elapsed / SLIDE_DURATION) * 100, 100);
+    progressBar.style.width = pct + '%';
+  }
+  requestAnimationFrame(updateProgress);
+}
+requestAnimationFrame(updateProgress);
+
+heroCarousel.addEventListener('slide.bs.carousel', () => {
+  progressStart = performance.now();
+  progressBar.style.width = '0%';
+});
+heroCarousel.addEventListener('mouseenter', () => { paused = true; });
+heroCarousel.addEventListener('mouseleave', () => {
+  paused = false;
+  progressStart = performance.now() - (parseFloat(progressBar.style.width) / 100) * SLIDE_DURATION;
+});
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+function animateCounter(el, target, duration = 2000) {
+  const start = performance.now();
+  const update = (time) => {
+    const progress = Math.min((time - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(eased * target).toLocaleString('fr-FR');
+    if (progress < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      animateCounter(el, parseInt(el.dataset.target));
+      counterObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.counter[data-target]').forEach(el => counterObserver.observe(el));
+
+const visitCount = document.getElementById('visitCount');
+const visitCounter = document.getElementById('visitCounter');
+const TOTAL_VISITS = 14387;
+setTimeout(() => {
+  visitCounter.classList.add('visible');
+  animateCounter(visitCount, TOTAL_VISITS, 2200);
+}, 800);
+
+const backToTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 400) backToTop.classList.add('visible');
+  else backToTop.classList.remove('visible');
+});
+backToTop.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+
+</body>
+</html>
