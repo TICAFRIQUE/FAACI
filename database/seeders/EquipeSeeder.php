@@ -9,6 +9,8 @@ class EquipeSeeder extends Seeder
 {
     public function run(): void
     {
+        if (MembreEquipe::count() > 0) return;
+
         MembreEquipe::query()->delete();
 
         $membres = [

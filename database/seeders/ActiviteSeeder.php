@@ -9,6 +9,8 @@ class ActiviteSeeder extends Seeder
 {
     public function run(): void
     {
+        if (Activite::count() > 0) return;
+
         Activite::query()->delete();
 
         $activites = [

@@ -9,6 +9,8 @@ class ValeurSeeder extends Seeder
 {
     public function run(): void
     {
+        if (Valeur::count() > 0) return;
+
         Valeur::query()->delete();
 
         $valeurs = [

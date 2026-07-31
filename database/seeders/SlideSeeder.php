@@ -9,6 +9,8 @@ class SlideSeeder extends Seeder
 {
     public function run(): void
     {
+        if (Slide::count() > 0) return;
+
         Slide::query()->delete();
 
         $slides = [
