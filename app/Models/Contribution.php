@@ -12,7 +12,7 @@ class Contribution extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $table = 'contributions';
+    protected $table = 'investissements';
 
     protected $fillable = [
         'projet_id',
@@ -38,20 +38,25 @@ class Contribution extends Model implements HasMedia
         ];
     }
 
-    public const STATUT_PENDING   = 'pending';
-    public const STATUT_CONFIRMED = 'confirmed';
-    public const STATUT_PAID      = 'paid';
-    public const STATUT_PARTIAL   = 'partial';
-    public const STATUT_CANCELLED = 'cancelled';
+    public const STATUT_PROMESSE = 'promesse';
+    public const STATUT_PARTIEL  = 'partiel';
+    public const STATUT_PAYE     = 'paye';
 
     public static function statutsLibelles(): array
     {
         return [
-            self::STATUT_PENDING   => 'En attente',
-            self::STATUT_CONFIRMED => 'Confirmé',
-            self::STATUT_PAID      => 'Payé',
-            self::STATUT_PARTIAL   => 'Partiel',
-            self::STATUT_CANCELLED => 'Annulé',
+            self::STATUT_PROMESSE => 'Promesse',
+            self::STATUT_PARTIEL  => 'Partiel',
+            self::STATUT_PAYE     => 'Payé',
+        ];
+    }
+
+    public static function statutsBadge(): array
+    {
+        return [
+            self::STATUT_PROMESSE => 'warning',
+            self::STATUT_PARTIEL  => 'primary',
+            self::STATUT_PAYE     => 'success',
         ];
     }
 

@@ -21,6 +21,7 @@ class ProfilUpdateRequest extends FormRequest
             'telephone'       => ['nullable', 'string', 'max:30'],
             'bio'             => ['nullable', 'string', 'max:1000'],
             'promotion_aiesec'=> ['nullable', 'string', 'max:10'],
+            'comite_local'    => ['nullable', 'string', 'max:100'],
             'secteur'         => ['nullable', 'string', 'max:150'],
             'ville'           => ['nullable', 'string', 'max:100'],
             'competences'     => ['nullable', 'array'],

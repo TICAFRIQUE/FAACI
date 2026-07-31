@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', $offre->titre)
 @section('page-title', 'Offre d\'emploi')
@@ -12,13 +12,6 @@
         <i class="bi bi-people me-1"></i> Candidatures ({{ $offre->candidatures->count() }})
     </a>
 </div>
-
-@if (session('status'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('status') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
-@if (session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
 
 <div class="row g-4">
     <div class="col-lg-8">

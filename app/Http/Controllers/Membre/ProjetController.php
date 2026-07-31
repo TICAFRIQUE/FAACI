@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Membre;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Membre\ProjetRequest;
 use App\Models\Projet;
+use App\Models\User;
+use App\Notifications\Admin\NouveauProjetSoumis;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -40,7 +44,7 @@ class ProjetController extends Controller
     /** Mes projets (porteur) */
     public function mesProjets(): View
     {
-        $projets = Projet::where('utilisateur_id', auth()->id())
+        $projets = Projet::where('utilisateur_id', Auth::id())
             ->withCount('contributions')
             ->latest()
             ->get();
@@ -59,7 +63,7 @@ class ProjetController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['utilisateur_id'] = auth()->id();
+            $data['utilisateur_id'] = Auth::id();
             $data['slug']           = $this->uniqueSlug($data['titre']);
             $data['statut']         = Projet::STATUT_BROUILLON;
 
@@ -97,12 +101,12 @@ class ProjetController extends Controller
             Projet::STATUT_FINANCE,
             Projet::STATUT_EN_COURS,
             Projet::STATUT_TERMINE,
-        ]) || $projet->utilisateur_id === auth()->id();
+        ]) || $projet->utilisateur_id === Auth::id();
 
         abort_unless($peutVoir, 403);
 
         $projet->load(['porteur', 'contributions.contributeur']);
-        $maContribution = $projet->contributions()->where('utilisateur_id', auth()->id())->first();
+        $maContribution = $projet->contributions()->where('utilisateur_id', Auth::id())->first();
 
         return view('membre.projets.show', compact('projet', 'maContribution'));
     }
@@ -110,7 +114,7 @@ class ProjetController extends Controller
     /** Formulaire édition (brouillon uniquement) */
     public function edit(Projet $projet): View
     {
-        abort_unless($projet->utilisateur_id === auth()->id(), 403);
+        abort_unless($projet->utilisateur_id === Auth::id(), 403);
         abort_unless($projet->statut === Projet::STATUT_BROUILLON, 403);
 
         return view('membre.projets.edit', compact('projet'));
@@ -119,7 +123,7 @@ class ProjetController extends Controller
     /** Mettre à jour */
     public function update(ProjetRequest $request, Projet $projet): RedirectResponse
     {
-        abort_unless($projet->utilisateur_id === auth()->id(), 403);
+        abort_unless($projet->utilisateur_id === Auth::id(), 403);
         abort_unless($projet->statut === Projet::STATUT_BROUILLON, 403);
 
         try {
@@ -153,11 +157,14 @@ class ProjetController extends Controller
     /** Soumettre à la validation admin */
     public function soumettre(Projet $projet): RedirectResponse
     {
-        abort_unless($projet->utilisateur_id === auth()->id(), 403);
+        abort_unless($projet->utilisateur_id === Auth::id(), 403);
         abort_unless($projet->statut === Projet::STATUT_BROUILLON, 403);
 
         try {
             $projet->update(['statut' => Projet::STATUT_EN_ATTENTE]);
+
+            $admins = User::role(['admin', 'super_admin'])->get();
+            Notification::send($admins, new NouveauProjetSoumis($projet, Auth::user()));
 
             return redirect()->route('membre.projets.show', $projet)
                 ->with('status', 'Votre projet a été soumis. Un administrateur va l\'examiner.');
@@ -171,7 +178,7 @@ class ProjetController extends Controller
     /** Supprimer (brouillon uniquement) */
     public function destroy(Projet $projet): RedirectResponse
     {
-        abort_unless($projet->utilisateur_id === auth()->id(), 403);
+        abort_unless($projet->utilisateur_id === Auth::id(), 403);
         abort_unless($projet->statut === Projet::STATUT_BROUILLON, 403);
 
         try {

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', $utilisateur->nom_complet)
 @section('page-title', 'Détail de l\'administrateur')
@@ -79,7 +79,7 @@
                             <i class="bi bi-pencil me-1"></i>Modifier
                         </a>
                         <form method="POST" action="{{ route('admin.administrateurs.reinitialiser-mot-de-passe', $utilisateur) }}"
-                              onsubmit="return confirm('Envoyer un lien de réinitialisation du mot de passe ?');">
+                              data-confirm="Envoyer un lien de réinitialisation du mot de passe ?">
                             @csrf
                             <button type="submit" class="btn btn-outline-warning btn-sm">
                                 <i class="bi bi-key me-1"></i>Réinitialiser le mot de passe
@@ -87,7 +87,7 @@
                         </form>
                         @if ($utilisateur->id !== auth()->id())
                             <form method="POST" action="{{ route('admin.administrateurs.destroy', $utilisateur) }}"
-                                  onsubmit="return confirm('Supprimer définitivement ce compte ? Cette action est irréversible.');">
+                                  data-confirm="Supprimer définitivement ce compte ? Cette action est irréversible.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-outline-danger btn-sm">
@@ -110,7 +110,7 @@
                                     <i class="bi bi-pause-circle me-1"></i>Suspendre
                                 </button>
                                 <form method="POST" action="{{ route('admin.administrateurs.desactiver', $utilisateur) }}"
-                                      onsubmit="return confirm('Désactiver ce compte ?');">
+                                      data-confirm="Désactiver ce compte ?">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="btn btn-outline-dark">
@@ -119,7 +119,7 @@
                                 </form>
                             @elseif (in_array($utilisateur->statut, [$userClass::STATUT_SUSPENDU, $userClass::STATUT_INACTIF]))
                                 <form method="POST" action="{{ route('admin.administrateurs.reactiver', $utilisateur) }}"
-                                      onsubmit="return confirm('Réactiver ce compte ?');">
+                                      data-confirm="Réactiver ce compte ?">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="btn btn-success">

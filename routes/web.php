@@ -4,7 +4,6 @@ use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\CompteController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EvenementController;
-use App\Http\Controllers\GalerieController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,9 +26,6 @@ Route::get('/actualites/{article}', [ActualiteController::class, 'show'])->name(
 
 Route::get('/evenements', [EvenementController::class, 'index'])->name('evenements.index');
 Route::get('/evenements/{evenement}', [EvenementController::class, 'show'])->name('evenements.show');
-
-Route::get('/galerie', [GalerieController::class, 'index'])->name('galerie.index');
-Route::get('/galerie/{galerie}', [GalerieController::class, 'show'])->name('galerie.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/compte/statut', [CompteController::class, 'statut'])->name('compte.statut');

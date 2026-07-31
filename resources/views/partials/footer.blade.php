@@ -46,7 +46,7 @@
         <a href="{{ $home }}#activites" class="footer-link">Activités</a>
         <a href="{{ route('evenements.index') }}" class="footer-link">Événements</a>
         <a href="{{ $home }}#actualites" class="footer-link">Actualités</a>
-        <a href="{{ route('galerie.index') }}" class="footer-link">Galerie</a>
+
       </div>
 
       <div class="col-6 col-md-4 col-lg-2">

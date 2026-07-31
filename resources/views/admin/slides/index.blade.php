@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Slider (Hero)')
 @section('page-title', 'Slider (Hero)')
@@ -72,7 +72,7 @@
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <form method="POST" action="{{ route('admin.slides.destroy', $slide) }}" class="d-inline"
-                                      onsubmit="return confirm('Supprimer cette slide ?');">
+                                      data-confirm="Supprimer cette slide ?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger">

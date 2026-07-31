@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', $projet->titre)
 
@@ -77,7 +77,7 @@
                             </button>
                         </form>
                         <form method="POST" action="{{ route('membre.projets.destroy', $projet) }}"
-                              onsubmit="return confirm('Supprimer ce projet ?')">
+                              data-confirm="Supprimer ce projet ?">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-outline-danger btn-sm">
                                 <i class="bi bi-trash me-1"></i> Supprimer

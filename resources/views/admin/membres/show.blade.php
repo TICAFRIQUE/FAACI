@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', $membre->nom_complet)
 @section('page-title', 'Détail du membre')
@@ -18,9 +18,15 @@
 @endphp
 
 @section('content')
-    <a href="{{ route('admin.membres.index') }}" class="d-inline-flex align-items-center gap-1 text-decoration-none mb-3">
-        <i class="bi bi-arrow-left"></i> Retour à la liste
-    </a>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <a href="{{ route('admin.membres.index') }}" class="d-inline-flex align-items-center gap-1 text-decoration-none">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
+        <a href="{{ route('admin.cotisations.membre', $membre) }}"
+           class="btn btn-faaci-navy btn-sm">
+            <i class="bi bi-wallet2 me-1"></i> Cotisations
+        </a>
+    </div>
 
     @if (session('status'))
         <div class="alert alert-success">{{ session('status') }}</div>
@@ -82,14 +88,14 @@
                             <i class="bi bi-pencil me-1"></i>Modifier
                         </a>
                         <form method="POST" action="{{ route('admin.membres.reinitialiser-mot-de-passe', $membre) }}"
-                              onsubmit="return confirm('Envoyer un lien de réinitialisation du mot de passe ?');">
+                              data-confirm="Envoyer un lien de réinitialisation du mot de passe ?">
                             @csrf
                             <button type="submit" class="btn btn-outline-warning btn-sm">
                                 <i class="bi bi-key me-1"></i>Réinitialiser le mot de passe
                             </button>
                         </form>
                         <form method="POST" action="{{ route('admin.membres.destroy', $membre) }}"
-                              onsubmit="return confirm('Supprimer définitivement ce membre ? Cette action est irréversible.');">
+                              data-confirm="Supprimer définitivement ce membre ? Cette action est irréversible.">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-outline-danger btn-sm">
@@ -106,7 +112,7 @@
                     <h3 class="h6 fw-bold mb-3">Actions</h3>
                     <div class="d-flex flex-wrap gap-2">
                         @if ($membre->statut === $userClass::STATUT_EN_ATTENTE)
-                            <form method="POST" action="{{ route('admin.membres.valider', $membre) }}" onsubmit="return confirm('Valider cette demande d\'adhésion ?');">
+                            <form method="POST" action="{{ route('admin.membres.valider', $membre) }}" data-confirm="Valider cette demande d'adhésion ?">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Valider</button>
@@ -118,13 +124,13 @@
                             <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalSuspension">
                                 <i class="bi bi-pause-circle me-1"></i>Suspendre
                             </button>
-                            <form method="POST" action="{{ route('admin.membres.desactiver', $membre) }}" onsubmit="return confirm('Désactiver ce membre ?');">
+                            <form method="POST" action="{{ route('admin.membres.desactiver', $membre) }}" data-confirm="Désactiver ce membre ?">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="btn btn-outline-dark"><i class="bi bi-slash-circle me-1"></i>Désactiver</button>
                             </form>
                         @elseif (in_array($membre->statut, [$userClass::STATUT_SUSPENDU, $userClass::STATUT_INACTIF]))
-                            <form method="POST" action="{{ route('admin.membres.reactiver', $membre) }}" onsubmit="return confirm('Réactiver ce membre ?');">
+                            <form method="POST" action="{{ route('admin.membres.reactiver', $membre) }}" data-confirm="Réactiver ce membre ?">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="btn btn-success"><i class="bi bi-arrow-counterclockwise me-1"></i>Réactiver</button>

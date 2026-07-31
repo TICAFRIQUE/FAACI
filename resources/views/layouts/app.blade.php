@@ -137,9 +137,17 @@
            class="membre-nav-link {{ request()->routeIs('membre.dashboard') ? 'active' : '' }}">
             <i class="bi bi-speedometer2"></i> Tableau de bord
         </a>
-        <a href="{{ route('membre.annuaire') }}"
-           class="membre-nav-link {{ request()->routeIs('membre.annuaire*') ? 'active' : '' }}">
-            <i class="bi bi-people"></i> Annuaire
+
+        <a href="{{ route('membre.cotisations.index') }}"
+           class="membre-nav-link {{ request()->routeIs('membre.cotisations*') ? 'active' : '' }}">
+            <i class="bi bi-wallet2"></i> Mes cotisations
+            @php
+                $cotRetard = \App\Models\Cotisation::where('utilisateur_id', auth()->id())
+                    ->where('statut', 'en_retard')->count();
+            @endphp
+            @if ($cotRetard > 0)
+                <span class="badge bg-danger ms-auto" style="font-size:.6rem;">{{ $cotRetard }}</span>
+            @endif
         </a>
 
         <p class="membre-nav-section-title">Financement</p>
@@ -153,7 +161,35 @@
         </a>
         <a href="{{ route('membre.contributions.index') }}"
            class="membre-nav-link {{ request()->routeIs('membre.contributions*') ? 'active' : '' }}">
-            <i class="bi bi-cash-stack"></i> Mes contributions
+            <i class="bi bi-cash-stack"></i> Mes investissements
+        </a>
+        <a href="{{ route('membre.dons.index') }}"
+           class="membre-nav-link {{ request()->routeIs('membre.dons*') ? 'active' : '' }}">
+            <i class="bi bi-gift"></i> Mes dons
+        </a>
+
+        <p class="membre-nav-section-title">Annuaire</p>
+        <a href="{{ route('membre.annuaire') }}"
+           class="membre-nav-link {{ request()->routeIs('membre.annuaire') || request()->routeIs('membre.annuaire.show') ? 'active' : '' }}">
+            <i class="bi bi-people"></i> Membres
+        </a>
+        <a href="{{ route('membre.entreprises.index') }}"
+           class="membre-nav-link {{ request()->routeIs('membre.entreprises.index') || request()->routeIs('membre.entreprises.show') ? 'active' : '' }}">
+            <i class="bi bi-building"></i> Entreprises Alumni
+        </a>
+        <a href="{{ route('membre.entreprises.mes-entreprises') }}"
+           class="membre-nav-link {{ request()->routeIs('membre.entreprises.mes-entreprises') || request()->routeIs('membre.entreprises.create') || request()->routeIs('membre.entreprises.edit') ? 'active' : '' }}">
+            <i class="bi bi-briefcase"></i> Mes entreprises
+        </a>
+
+        <p class="membre-nav-section-title">Compétitions</p>
+        <a href="{{ route('membre.competitions.index') }}"
+           class="membre-nav-link {{ request()->routeIs('membre.competitions.index') || request()->routeIs('membre.competitions.show') ? 'active' : '' }}">
+            <i class="bi bi-trophy"></i> Appels à projets
+        </a>
+        <a href="{{ route('membre.competitions.mes-candidatures') }}"
+           class="membre-nav-link {{ request()->routeIs('membre.competitions.mes-candidatures') ? 'active' : '' }}">
+            <i class="bi bi-send"></i> Mes candidatures
         </a>
 
         <p class="membre-nav-section-title">Opportunités</p>
@@ -185,9 +221,9 @@
                         ->when($sideUser->annonces_lues_at, fn($q) => $q->where('publiee_at', '>', $sideUser->annonces_lues_at))
                         ->count();
             @endphp
-            @if ($sideNotifs > 0)
-                <span class="badge bg-danger ms-auto" style="font-size:.6rem;">{{ $sideNotifs > 99 ? '99+' : $sideNotifs }}</span>
-            @endif
+            <span id="sidebarBellBadge"
+                  class="badge bg-danger ms-auto{{ $sideNotifs > 0 ? '' : ' d-none' }}"
+                  style="font-size:.6rem;">{{ $sideNotifs > 99 ? '99+' : $sideNotifs }}</span>
         </a>
         <a href="{{ route('membre.profil') }}"
            class="membre-nav-link {{ request()->routeIs('membre.profil*') ? 'active' : '' }}">
@@ -237,15 +273,17 @@
                 $nbTotal = $nbNotifs + $nbAnnonces;
             @endphp
 
-            <div class="position-relative" x-data="{ open: false }" @click.outside="open = false">
-                <button @click="open = !open"
+            <div class="position-relative"
+                 x-data="bellDropdown('{{ route('membre.notifications.dropdown') }}', '{{ route('membre.notifications.count') }}')"
+                 @click.outside="close()">
+
+                <button @click="toggle()"
                         class="btn btn-sm btn-light border position-relative"
                         title="Notifications">
-                    <i class="bi bi-bell{{ $nbTotal > 0 ? '-fill text-faaci-navy' : '' }}"></i>
-                    @if ($nbTotal > 0)
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                              style="font-size:.6rem;">{{ $nbTotal > 99 ? '99+' : $nbTotal }}</span>
-                    @endif
+                    <i id="bellIcon" class="bi bi-bell{{ $nbTotal > 0 ? '-fill text-faaci-navy' : '' }}"></i>
+                    <span id="bellBadge"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger{{ $nbTotal > 0 ? '' : ' d-none' }}"
+                          style="font-size:.6rem;">{{ $nbTotal > 99 ? '99+' : $nbTotal }}</span>
                 </button>
 
                 <div x-show="open" x-cloak x-transition
@@ -253,61 +291,20 @@
                      style="width:320px;z-index:1060;">
                     <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                         <span class="fw-semibold small">Notifications</span>
-                        @if ($nbTotal > 0)
-                            <form method="POST" action="{{ route('membre.notifications.tout-lire') }}" class="m-0">
-                                @csrf @method('PATCH')
-                                <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:.72rem;">
-                                    <i class="bi bi-check2-all me-1"></i>Tout lire
-                                </button>
-                            </form>
-                        @endif
+                        <form method="POST" action="{{ route('membre.notifications.tout-lire') }}" class="m-0">
+                            @csrf @method('PATCH')
+                            <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:.72rem;">
+                                <i class="bi bi-check2-all me-1"></i>Tout lire
+                            </button>
+                        </form>
                     </div>
 
-                    <div style="max-height:340px;overflow-y:auto;">
-                        {{-- Annonces non lues --}}
-                        @php
-                            $annoncesRecentes = \App\Models\Annonce::actives()
-                                ->when($user->annonces_lues_at, fn($q) => $q->where('publiee_at', '>', $user->annonces_lues_at))
-                                ->latest('publiee_at')->take(5)->get();
-                        @endphp
-                        @foreach ($annoncesRecentes as $annonce)
-                            @php $cfg = $annonce->type_config; @endphp
-                            <a href="{{ route('membre.notifications.index') }}"
-                               class="d-flex gap-2 px-3 py-2 text-decoration-none border-bottom"
-                               style="background:#f8f9ff;">
-                                <i class="bi {{ $cfg['icone'] }} text-{{ $cfg['couleur'] }} mt-1 flex-shrink-0"></i>
-                                <div>
-                                    <div class="small fw-semibold text-dark">{{ $annonce->titre }}</div>
-                                    <div class="text-muted" style="font-size:.75rem;">{{ $annonce->publiee_at->diffForHumans() }}</div>
-                                </div>
-                            </a>
-                        @endforeach
-
-                        {{-- Notifications événements --}}
-                        @foreach ($user->unreadNotifications()->latest()->take(5)->get() as $notif)
-                            <form method="POST" action="{{ route('membre.notifications.lue', $notif->id) }}">
-                                @csrf @method('PATCH')
-                                <button type="submit"
-                                        class="d-flex gap-2 px-3 py-2 w-100 text-start border-bottom"
-                                        style="background:#eef2ff;border:none;border-bottom:1px solid #dee2e6;cursor:pointer;transition:background .15s;"
-                                        onmouseover="this.style.background='#dde3ff'"
-                                        onmouseout="this.style.background='#eef2ff'">
-                                    <i class="bi bi-calendar-event text-faaci-steel mt-1 flex-shrink-0"></i>
-                                    <div class="flex-grow-1">
-                                        <div class="small fw-semibold text-dark">{{ $notif->data['message'] }}</div>
-                                        <div class="text-muted" style="font-size:.75rem;">{{ $notif->created_at->diffForHumans() }}</div>
-                                    </div>
-                                    <span class="badge bg-faaci-steel align-self-center flex-shrink-0" style="font-size:.6rem;">Voir</span>
-                                </button>
-                            </form>
-                        @endforeach
-
-                        @if ($nbTotal === 0)
-                            <div class="text-center text-muted py-4 small">
-                                <i class="bi bi-bell-slash d-block fs-3 mb-1 opacity-50"></i>
-                                Aucune nouvelle notification
-                            </div>
-                        @endif
+                    {{-- Contenu chargé en AJAX --}}
+                    <div id="bellDropdownBody" style="max-height:340px;overflow-y:auto;">
+                        <div class="text-center text-muted py-4 small">
+                            <i class="bi bi-arrow-repeat d-block fs-3 mb-1 opacity-50"></i>
+                            Chargement…
+                        </div>
                     </div>
 
                     <div class="px-3 py-2 border-top text-center">
@@ -369,6 +366,74 @@ $(function () {
 });
 </script>
 <script>
+// ── Cloche notifications (Alpine component + polling) ─────────────────
+function bellDropdown(dropdownUrl, countUrl) {
+    return {
+        open: false,
+
+        toggle() {
+            this.open = !this.open;
+            if (this.open) this.loadContent();
+        },
+
+        close() {
+            this.open = false;
+        },
+
+        loadContent() {
+            fetch(dropdownUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.ok ? r.text() : null)
+                .then(html => {
+                    if (!html) return;
+                    const body = document.getElementById('bellDropdownBody');
+                    if (body) body.innerHTML = html;
+                })
+                .catch(() => {});
+        },
+
+        updateCount(n) {
+            const badge   = document.getElementById('bellBadge');
+            const icon    = document.getElementById('bellIcon');
+            const sidebar = document.getElementById('sidebarBellBadge');
+            const label   = n > 99 ? '99+' : n;
+            if (badge)   { badge.textContent = label; badge.classList.toggle('d-none', n === 0); }
+            if (icon)    { icon.className = n > 0 ? 'bi bi-bell-fill text-faaci-navy' : 'bi bi-bell'; }
+            if (sidebar) { sidebar.textContent = label; sidebar.classList.toggle('d-none', n === 0); }
+        }
+    };
+}
+
+// Polling toutes les 30s
+(function pollNotifications() {
+    const url = '{{ route('membre.notifications.count') }}';
+    function refresh() {
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (data) {
+                    // Cherche l'instance Alpine de la cloche et met à jour le compteur
+                    const el = document.querySelector('[x-data^="bellDropdown"]');
+                    if (el && el._x_dataStack) {
+                        el._x_dataStack[0].updateCount(data.total);
+                    } else {
+                        // Fallback direct DOM si Alpine pas encore initialisé
+                        const n = data.total;
+                        const badge   = document.getElementById('bellBadge');
+                        const icon    = document.getElementById('bellIcon');
+                        const sidebar = document.getElementById('sidebarBellBadge');
+                        const label   = n > 99 ? '99+' : n;
+                        if (badge)   { badge.textContent = label; badge.classList.toggle('d-none', n === 0); }
+                        if (icon)    { icon.className = n > 0 ? 'bi bi-bell-fill text-faaci-navy' : 'bi bi-bell'; }
+                        if (sidebar) { sidebar.textContent = label; sidebar.classList.toggle('d-none', n === 0); }
+                    }
+                }
+            })
+            .catch(() => {});
+    }
+    setInterval(refresh, 30000);
+})();
+</script>
+<script>
 function openSidebar() {
     document.getElementById('membreSidebar').classList.add('show');
     document.getElementById('sidebarOverlay').classList.remove('d-none');
@@ -379,5 +444,60 @@ function closeSidebar() {
 }
 </script>
 @stack('scripts')
+
+{{-- Modal confirmation globale --}}
+<div class="modal fade" id="faacConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3" style="font-size:2.5rem;line-height:1;">
+                    <i class="bi bi-question-circle text-warning"></i>
+                </div>
+                <p id="faacConfirmMessage" class="fw-medium mb-4 text-dark"></p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-4"
+                            data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger btn-sm px-4"
+                            id="faacConfirmOk">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    let _pendingForm = null;
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalEl  = document.getElementById('faacConfirmModal');
+        const modal    = new bootstrap.Modal(modalEl);
+        const msgEl    = document.getElementById('faacConfirmMessage');
+        const okBtn    = document.getElementById('faacConfirmOk');
+
+        document.addEventListener('submit', function (e) {
+            const msg = e.target.dataset.confirm;
+            if (!msg) return;
+            e.preventDefault();
+            e.stopPropagation();
+            msgEl.textContent = msg;
+            _pendingForm = e.target;
+            modal.show();
+        }, true);
+
+        okBtn.addEventListener('click', function () {
+            modal.hide();
+            if (_pendingForm) {
+                const f = _pendingForm;
+                _pendingForm = null;
+                delete f.dataset.confirm;
+                f.submit();
+            }
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            _pendingForm = null;
+        });
+    });
+})();
+</script>
 </body>
 </html>

@@ -6,14 +6,41 @@ use App\Http\Controllers\Controller;
 use App\Models\Annonce;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class AnnonceController extends Controller
 {
-    public function index(): View
+    public function index(Request $request)
     {
-        $annonces = Annonce::with('auteur')->orderByDesc('created_at')->paginate(20);
-        return view('admin.annonces.index', compact('annonces'));
+        if ($request->ajax()) {
+            $query = Annonce::with('auteur')->select('annonces.*');
+
+            return DataTables::of($query)
+                ->addColumn('type_badge', function ($a) {
+                    $cfg = $a->type_config;
+                    return "<span class='badge bg-{$cfg['couleur']} bg-opacity-10 text-{$cfg['couleur']}'>"
+                        ."<i class='bi {$cfg['icone']} me-1'></i>{$cfg['libelle']}</span>";
+                })
+                ->addColumn('statut_badge', function ($a) {
+                    $map = [
+                        'publiee'  => ['success',  'Publiée'],
+                        'archivee' => ['secondary', 'Archivée'],
+                        'brouillon'=> ['warning',   'Brouillon'],
+                    ];
+                    [$col, $lib] = $map[$a->statut] ?? ['secondary', $a->statut];
+                    return "<span class='badge bg-{$col}'>{$lib}</span>";
+                })
+                ->addColumn('publiee_fmt',  fn ($a) => $a->publiee_at?->format('d/m/Y H:i') ?? '—')
+                ->addColumn('expire_fmt',   fn ($a) => $a->expire_at?->format('d/m/Y') ?? '—')
+                ->addColumn('auteur_nom',   fn ($a) => $a->auteur?->nom_complet ?? '—')
+                ->addColumn('actions', fn ($a) => view('admin.annonces._actions', compact('a'))->render())
+                ->rawColumns(['type_badge', 'statut_badge', 'actions'])
+                ->make(true);
+        }
+
+        return view('admin.annonces.index');
     }
 
     public function create(): View
@@ -37,7 +64,7 @@ class AnnonceController extends Controller
                 $data['publiee_at'] = now();
             }
 
-            $data['auteur_id'] = auth()->id();
+            $data['auteur_id'] = Auth::id();
 
             Annonce::create($data);
 

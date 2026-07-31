@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contribution;
 use App\Models\Projet;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
@@ -78,7 +81,7 @@ class ProjetController extends Controller
         try {
             $projet->update([
                 'statut'          => Projet::STATUT_EN_FINANCEMENT,
-                'valide_par'      => auth()->id(),
+                'valide_par'      => Auth::id(),
                 'date_validation' => now(),
                 'motif_rejet'     => null,
             ]);
@@ -126,5 +129,60 @@ class ProjetController extends Controller
 
             return back()->with('error', 'Une erreur est survenue.');
         }
+    }
+
+    /** Export PDF (page imprimable) des contributeurs d'un projet */
+    public function exportPdf(Request $request, Projet $projet): View
+    {
+        $statut       = $request->input('statut', 'tous');
+        $contributions = $projet->contributions()
+            ->with('contributeur')
+            ->when($statut !== 'tous', fn ($q) => $q->where('statut', $statut))
+            ->orderBy('created_at')
+            ->get();
+
+        return view('admin.projets.export-contributeurs-pdf', compact('projet', 'contributions', 'statut'));
+    }
+
+    /** Export CSV des contributeurs d'un projet */
+    public function exportCsv(Request $request, Projet $projet): StreamedResponse
+    {
+        $statut       = $request->input('statut', 'tous');
+        $contributions = $projet->contributions()
+            ->with('contributeur')
+            ->when($statut !== 'tous', fn ($q) => $q->where('statut', $statut))
+            ->orderBy('created_at')
+            ->get();
+
+        $slug     = str($projet->titre)->slug()->value();
+        $filename = "contributeurs-{$slug}.csv";
+
+        return response()->streamDownload(function () use ($contributions) {
+            $handle = fopen('php://output', 'w');
+            // BOM UTF-8 pour Excel
+            fwrite($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, ['#', 'Nom complet', 'Email', 'Montant promis (FCFA)', 'Montant payé (FCFA)', 'Moyen de paiement', 'Statut', 'Date promesse'], ';');
+
+            $statutsLibelles  = Contribution::statutsLibelles();
+            $moyensPaiement   = Contribution::moyensPaiement();
+            $i = 1;
+
+            foreach ($contributions as $c) {
+                fputcsv($handle, [
+                    $i++,
+                    $c->contributeur?->nom_complet ?? '—',
+                    $c->contributeur?->email ?? '—',
+                    number_format((float) $c->montant_promis, 0, ',', ' '),
+                    $c->montant_paye > 0 ? number_format((float) $c->montant_paye, 0, ',', ' ') : '0',
+                    $moyensPaiement[$c->moyen_paiement] ?? '—',
+                    $statutsLibelles[$c->statut] ?? $c->statut,
+                    $c->created_at->format('d/m/Y'),
+                ], ';');
+            }
+            fclose($handle);
+        }, $filename, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 }

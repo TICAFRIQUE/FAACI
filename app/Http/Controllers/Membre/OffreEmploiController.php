@@ -7,9 +7,14 @@ use App\Http\Requests\Membre\CandidatureRequest;
 use App\Http\Requests\Membre\OffreEmploiRequest;
 use App\Models\Candidature;
 use App\Models\OffreEmploi;
+use App\Models\User;
+use App\Notifications\Admin\NouvelleCandidatureEmploi;
+use App\Notifications\Admin\NouvelleOffreEmploiSoumise;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class OffreEmploiController extends Controller
@@ -35,7 +40,7 @@ class OffreEmploiController extends Controller
         $offres = $query->paginate(12)->withQueryString();
 
         // Mes candidatures pour savoir si j'ai déjà postulé
-        $mesCandidatureIds = Candidature::where('utilisateur_id', auth()->id())
+        $mesCandidatureIds = Candidature::where('utilisateur_id', Auth::id())
             ->whereIn('offre_emploi_id', $offres->pluck('id'))
             ->pluck('offre_emploi_id')
             ->toArray();
@@ -46,12 +51,12 @@ class OffreEmploiController extends Controller
     /** Détail d'une offre */
     public function show(OffreEmploi $offre): View
     {
-        abort_unless($offre->statut === OffreEmploi::STATUT_ACTIVE || $offre->utilisateur_id === auth()->id(), 404);
+        abort_unless($offre->statut === OffreEmploi::STATUT_ACTIVE || $offre->utilisateur_id === Auth::id(), 404);
 
         $offre->load('auteur');
 
         $maCandidature = Candidature::where('offre_emploi_id', $offre->id)
-            ->where('utilisateur_id', auth()->id())
+            ->where('utilisateur_id', Auth::id())
             ->first();
 
         return view('membre.emplois.show', compact('offre', 'maCandidature'));
@@ -60,7 +65,7 @@ class OffreEmploiController extends Controller
     /** Mes offres publiées */
     public function mesOffres(): View
     {
-        $offres = OffreEmploi::where('utilisateur_id', auth()->id())
+        $offres = OffreEmploi::where('utilisateur_id', Auth::id())
             ->withCount('candidatures')
             ->latest()
             ->get();
@@ -79,11 +84,14 @@ class OffreEmploiController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['utilisateur_id'] = auth()->id();
+            $data['utilisateur_id'] = Auth::id();
             $data['slug']           = OffreEmploi::uniqueSlug($data['titre']);
             $data['statut']         = OffreEmploi::STATUT_EN_ATTENTE;
 
-            OffreEmploi::create($data);
+            $offre = OffreEmploi::create($data);
+
+            $admins = User::role(['admin', 'super_admin'])->get();
+            Notification::send($admins, new NouvelleOffreEmploiSoumise($offre, Auth::user()));
 
             return redirect()->route('membre.emplois.mes-offres')
                 ->with('status', 'Votre offre a été soumise. Elle sera publiée après validation admin.');
@@ -96,7 +104,7 @@ class OffreEmploiController extends Controller
     /** Formulaire édition (brouillon / en_attente du même auteur) */
     public function edit(OffreEmploi $offre): View
     {
-        abort_unless($offre->utilisateur_id === auth()->id(), 403);
+        abort_unless($offre->utilisateur_id === Auth::id(), 403);
         abort_unless(in_array($offre->statut, [OffreEmploi::STATUT_EN_ATTENTE, OffreEmploi::STATUT_REJETEE]), 403);
 
         return view('membre.emplois.edit', compact('offre'));
@@ -105,7 +113,7 @@ class OffreEmploiController extends Controller
     /** Mettre à jour */
     public function update(OffreEmploiRequest $request, OffreEmploi $offre): RedirectResponse
     {
-        abort_unless($offre->utilisateur_id === auth()->id(), 403);
+        abort_unless($offre->utilisateur_id === Auth::id(), 403);
         abort_unless(in_array($offre->statut, [OffreEmploi::STATUT_EN_ATTENTE, OffreEmploi::STATUT_REJETEE]), 403);
 
         try {
@@ -124,7 +132,7 @@ class OffreEmploiController extends Controller
     /** Supprimer (en_attente ou rejetee uniquement) */
     public function destroy(OffreEmploi $offre): RedirectResponse
     {
-        abort_unless($offre->utilisateur_id === auth()->id(), 403);
+        abort_unless($offre->utilisateur_id === Auth::id(), 403);
         abort_unless(in_array($offre->statut, [OffreEmploi::STATUT_EN_ATTENTE, OffreEmploi::STATUT_REJETEE]), 403);
 
         try {
@@ -139,10 +147,10 @@ class OffreEmploiController extends Controller
     public function postuler(CandidatureRequest $request, OffreEmploi $offre): RedirectResponse
     {
         abort_unless($offre->statut === OffreEmploi::STATUT_ACTIVE, 403);
-        abort_unless($offre->utilisateur_id !== auth()->id(), 403, 'Vous ne pouvez pas postuler à votre propre offre.');
+        abort_unless($offre->utilisateur_id !== Auth::id(), 403, 'Vous ne pouvez pas postuler à votre propre offre.');
 
         $dejaPostule = Candidature::where('offre_emploi_id', $offre->id)
-            ->where('utilisateur_id', auth()->id())
+            ->where('utilisateur_id', Auth::id())
             ->exists();
 
         if ($dejaPostule) {
@@ -152,7 +160,7 @@ class OffreEmploiController extends Controller
         try {
             $candidature = Candidature::create([
                 'offre_emploi_id'   => $offre->id,
-                'utilisateur_id'    => auth()->id(),
+                'utilisateur_id'    => Auth::id(),
                 'lettre_motivation' => $request->lettre_motivation,
                 'statut'            => Candidature::STATUT_SOUMISE,
             ]);
@@ -160,6 +168,10 @@ class OffreEmploiController extends Controller
             if ($request->hasFile('cv')) {
                 $candidature->addMediaFromRequest('cv')->toMediaCollection('cv');
             }
+
+            $candidature->load('offre');
+            $admins = User::role(['admin', 'super_admin'])->get();
+            Notification::send($admins, new NouvelleCandidatureEmploi($candidature, Auth::user()));
 
             return back()->with('status', 'Candidature envoyée avec succès !');
         } catch (\Throwable $e) {
@@ -171,7 +183,7 @@ class OffreEmploiController extends Controller
     /** Mes candidatures */
     public function mesCandidatures(): View
     {
-        $candidatures = Candidature::where('utilisateur_id', auth()->id())
+        $candidatures = Candidature::where('utilisateur_id', Auth::id())
             ->with('offre')
             ->latest()
             ->get();

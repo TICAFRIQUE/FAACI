@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Actualités')
 @section('page-title', 'Actualités')
@@ -49,7 +49,7 @@
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <form method="POST" action="{{ route('admin.articles.destroy', $article) }}" class="d-inline"
-                                      onsubmit="return confirm('Supprimer cet article ?');">
+                                      data-confirm="Supprimer cet article ?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger">

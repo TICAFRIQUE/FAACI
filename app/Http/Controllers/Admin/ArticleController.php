@@ -89,11 +89,15 @@ class ArticleController extends Controller
         }
     }
 
-    public function supprimerPhoto(Article $article, Media $media): RedirectResponse
+    public function supprimerPhoto(Article $article, Media $media)
     {
         abort_unless($media->model_id === $article->id && $media->collection_name === 'photos', 403);
 
         $media->delete();
+
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['ok' => true]);
+        }
 
         return back()->with('status', 'Photo supprimée.');
     }

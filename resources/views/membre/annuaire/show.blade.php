@@ -89,6 +89,9 @@
                     <dt class="col-sm-4 text-muted fw-normal small">Promotion</dt>
                     <dd class="col-sm-8 fw-medium">{{ $membre->promotion_aiesec ?: '—' }}</dd>
 
+                    <dt class="col-sm-4 text-muted fw-normal small">Comité local</dt>
+                    <dd class="col-sm-8 fw-medium">{{ $membre->comite_local ?: '—' }}</dd>
+
                     <dt class="col-sm-4 text-muted fw-normal small">Membre depuis</dt>
                     <dd class="col-sm-8 fw-medium">{{ $membre->date_validation?->translatedFormat('F Y') ?? '—' }}</dd>
                 </dl>

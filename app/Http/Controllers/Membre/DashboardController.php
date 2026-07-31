@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $stats = [
             'membres_actifs'    => User::role('membre')->where('statut', User::STATUT_ACTIF)->count(),
             'projets_actifs'    => Projet::where('statut', Projet::STATUT_EN_FINANCEMENT)->count(),
-            'mes_contributions' => $membre->contributions()->whereNotIn('statut', ['cancelled'])->count(),
+            'mes_contributions' => $membre->investissements()->whereNotIn('statut', ['cancelled'])->count(),
             'mes_projets'       => $membre->projets()->count(),
         ];
 

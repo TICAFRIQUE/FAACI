@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Mon profil')
 
@@ -61,10 +61,10 @@
                                onchange="document.getElementById('formPhoto').submit()">
                     </form>
                     @if ($membre->photo_url)
-                        <form method="POST" action="{{ route('membre.profil.photo.delete') }}" class="mt-1">
+                        <form method="POST" action="{{ route('membre.profil.photo.delete') }}" class="mt-1"
+                              data-confirm="Supprimer votre photo de profil ?">
                             @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger w-100"
-                                    onclick="return confirm('Supprimer la photo ?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
                                 <i class="bi bi-trash me-1"></i> Supprimer la photo
                             </button>
                         </form>
@@ -105,6 +105,10 @@
                     <div class="col-sm-6">
                         <label class="form-label text-muted small mb-1">Promotion AIESEC</label>
                         <p class="mb-0 fw-medium">{{ $membre->promotion_aiesec ?: '—' }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label text-muted small mb-1">Comité local</label>
+                        <p class="mb-0 fw-medium">{{ $membre->comite_local ?: '—' }}</p>
                     </div>
                     <div class="col-12">
                         <label class="form-label text-muted small mb-1">Secteur d'activité</label>

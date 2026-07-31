@@ -16,7 +16,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['prenom', 'nom', 'email', 'telephone', 'password', 'statut', 'bio', 'promotion_aiesec', 'secteur', 'ville', 'competences'])]
+#[Fillable(['prenom', 'nom', 'email', 'telephone', 'password', 'statut', 'bio', 'promotion_aiesec', 'comite_local', 'secteur', 'ville', 'competences', 'annonces_lues_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements HasMedia
 {
@@ -47,6 +47,7 @@ class User extends Authenticatable implements HasMedia
             'date_suspension'    => 'datetime',
             'date_inactivation'  => 'datetime',
             'competences'        => 'array',
+            'annonces_lues_at'   => 'datetime',
         ];
     }
 
@@ -62,7 +63,7 @@ class User extends Authenticatable implements HasMedia
 
     public function getCompletenessAttribute(): int
     {
-        $champs = ['prenom', 'nom', 'email', 'telephone', 'bio', 'promotion_aiesec', 'secteur', 'ville'];
+        $champs = ['prenom', 'nom', 'email', 'telephone', 'bio', 'promotion_aiesec', 'comite_local', 'secteur', 'ville'];
         $remplis = collect($champs)->filter(fn ($c) => filled($this->$c))->count();
         $photo   = $this->getFirstMediaUrl('photos') ? 1 : 0;
         $comps   = filled($this->competences) ? 1 : 0;
@@ -78,9 +79,19 @@ class User extends Authenticatable implements HasMedia
             ->dontSubmitEmptyLogs();
     }
 
-    public function contributions(): HasMany
+    public function investissements(): HasMany
     {
         return $this->hasMany(Contribution::class, 'utilisateur_id');
+    }
+
+    public function dons(): HasMany
+    {
+        return $this->hasMany(Don::class, 'utilisateur_id');
+    }
+
+    public function entreprises(): HasMany
+    {
+        return $this->hasMany(Entreprise::class, 'utilisateur_id');
     }
 
     public function projets(): HasMany

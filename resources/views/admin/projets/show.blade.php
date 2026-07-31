@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', $projet->titre)
 
@@ -8,13 +8,6 @@
         <i class="bi bi-arrow-left me-1"></i> Retour aux projets
     </a>
 </div>
-
-@if (session('status'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('status') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
-@if (session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
 
 <div class="row g-4">
     <div class="col-lg-8">
@@ -71,13 +64,66 @@
         @endif
 
         {{-- Contributions --}}
+        @php
+            $statutFiltreActif = request('statut_filtre', 'tous');
+            $contributionsFiltrees = $projet->contributions->when(
+                $statutFiltreActif !== 'tous',
+                fn ($c) => $c->where('statut', $statutFiltreActif)
+            );
+        @endphp
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold pt-3 border-bottom-0">
-                <i class="bi bi-people me-1 text-faaci-steel"></i>
-                Contributions ({{ $projet->contributions->count() }})
+            <div class="card-header bg-white pt-3 border-bottom">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <span class="fw-semibold">
+                        <i class="bi bi-people me-1 text-faaci-steel"></i>
+                        Contributeurs ({{ $contributionsFiltrees->count() }})
+                    </span>
+                    <div class="d-flex gap-2 flex-wrap">
+                        {{-- Export --}}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-download me-1"></i>Exporter
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width:260px;">
+                                <li><h6 class="dropdown-header text-muted">Filtrer l'export par statut</h6></li>
+                                @php
+                                    $statutsExport = ['tous' => 'Tous'] + \App\Models\Contribution::statutsLibelles();
+                                @endphp
+                                @foreach ($statutsExport as $val => $lib)
+                                    <li class="px-3 py-1">
+                                        <div class="fw-medium small mb-1">{{ $lib }}</div>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ route('admin.projets.export.pdf', [$projet, 'statut' => $val]) }}"
+                                               target="_blank"
+                                               class="btn btn-sm btn-outline-danger py-0 px-2"
+                                               style="font-size:.72rem;">
+                                                <i class="bi bi-filetype-pdf me-1"></i>PDF
+                                            </a>
+                                            <a href="{{ route('admin.projets.export.csv', [$projet, 'statut' => $val]) }}"
+                                               class="btn btn-sm btn-outline-success py-0 px-2"
+                                               style="font-size:.72rem;">
+                                                <i class="bi bi-filetype-csv me-1"></i>CSV / Excel
+                                            </a>
+                                        </div>
+                                    </li>
+                                    @if (!$loop->last)<li><hr class="dropdown-divider my-1"></li>@endif
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {{-- Filtre statut (affichage page) --}}
+                <div class="d-flex flex-wrap gap-1 mt-2">
+                    @foreach (['tous' => 'Tous'] + \App\Models\Contribution::statutsLibelles() as $val => $lib)
+                        <a href="{{ request()->fullUrlWithQuery(['statut_filtre' => $val]) }}#contributions"
+                           class="badge text-decoration-none {{ $statutFiltreActif === $val ? 'bg-faaci-navy' : 'bg-light text-dark border' }}">
+                            {{ $lib }}
+                        </a>
+                    @endforeach
+                </div>
             </div>
-            <div class="card-body pt-0">
-                @forelse ($projet->contributions as $c)
+            <div class="card-body pt-0" id="contributions">
+                @forelse ($contributionsFiltrees as $c)
                     <div class="d-flex align-items-center gap-3 py-2 border-bottom">
                         <div class="flex-grow-1">
                             <div class="fw-medium small">{{ $c->contributeur->nom_complet }}</div>
@@ -91,16 +137,15 @@
                                 @endif
                             </div>
                         </div>
-                        @php $cs = ['pending'=>'warning','confirmed'=>'info','paid'=>'success','partial'=>'primary','cancelled'=>'secondary']; @endphp
-                        <span class="badge bg-{{ $cs[$c->statut] ?? 'secondary' }}">
-                            {{ \App\Models\Contribution::statutsLibelles()[$c->statut] }}
+                        <span class="badge bg-{{ \App\Models\Contribution::statutsBadge()[$c->statut] ?? 'secondary' }}">
+                            {{ \App\Models\Contribution::statutsLibelles()[$c->statut] ?? $c->statut }}
                         </span>
                         <a href="{{ route('admin.contributions.show', $c) }}" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-eye"></i>
                         </a>
                     </div>
                 @empty
-                    <p class="text-muted small mb-0">Aucune contribution.</p>
+                    <p class="text-muted small mb-0 py-2">Aucun contributeur pour ce filtre.</p>
                 @endforelse
             </div>
         </div>

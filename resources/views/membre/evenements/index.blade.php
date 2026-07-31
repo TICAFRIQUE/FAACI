@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Événements')
 
@@ -140,10 +140,10 @@
                                     @endif
                                 @elseif ($inscrip && $inscrip->statut !== 'annule')
                                     @if (!$passe)
-                                        <form method="POST" action="{{ route('membre.evenements.desinscrire', $ev) }}">
+                                        <form method="POST" action="{{ route('membre.evenements.desinscrire', $ev) }}"
+                                              data-confirm="Se désinscrire de cet événement ?">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Se désinscrire de cet événement ?')">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
                                                 Se désinscrire
                                             </button>
                                         </form>

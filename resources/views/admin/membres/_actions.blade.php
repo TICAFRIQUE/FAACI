@@ -7,7 +7,7 @@
     </a>
 
     @if ($membre->statut === $user::STATUT_EN_ATTENTE)
-        <form method="POST" action="{{ route('admin.membres.valider', $membre) }}" onsubmit="return confirm('Valider cette demande d\'adhésion ?');">
+        <form method="POST" action="{{ route('admin.membres.valider', $membre) }}" data-confirm="Valider cette demande d'adhésion ?">
             @csrf
             @method('PATCH')
             <button type="submit" class="btn btn-sm btn-success" title="Valider">

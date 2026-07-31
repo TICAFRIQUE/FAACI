@@ -82,6 +82,14 @@
                             </select>
                             @error('promotion_aiesec')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
+                        <div class="col-sm-6">
+                            <label for="comite_local" class="form-label">Comité local</label>
+                            <input type="text" id="comite_local" name="comite_local"
+                                   class="form-control @error('comite_local') is-invalid @enderror"
+                                   value="{{ old('comite_local', $membre->comite_local) }}"
+                                   placeholder="Ex : Abidjan, Bouaké…">
+                            @error('comite_local')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
                         <div class="col-12">
                             <label for="secteur" class="form-label">Secteur d'activité</label>
                             <select id="secteur" name="secteur"

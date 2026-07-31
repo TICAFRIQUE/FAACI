@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', 'Administration') — FAACI</title>
 @include('partials.faaci-styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.5.0/css/responsive.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <style>
     .admin-sidebar {
         width: 260px;
@@ -99,6 +101,9 @@
     .dtr-details li { border-bottom: 1px solid #f0f0f0; padding: 0.35rem 0; }
     .dtr-title { font-weight: 600; color: #6c757d; font-size: 0.8rem; text-transform: uppercase; letter-spacing:.04em; }
     .dtr-data { font-size: 0.88rem; }
+
+    /* Alpine.js : cacher les éléments x-cloak avant initialisation */
+    [x-cloak] { display: none !important; }
 </style>
 @stack('styles')
 </head>
@@ -131,12 +136,38 @@
 
         <div class="admin-nav-section-title">Financement</div>
         <x-admin-nav-link route="admin.projets.index" active="admin.projets.*" icon="bi-lightbulb">Projets</x-admin-nav-link>
-        <x-admin-nav-link route="admin.contributions.index" active="admin.contributions.*" icon="bi-cash-stack">Contributions</x-admin-nav-link>
+        <x-admin-nav-link route="admin.contributions.index" active="admin.contributions.*" icon="bi-cash-stack">Investissements</x-admin-nav-link>
+        <x-admin-nav-link route="admin.dons.index" active="admin.dons.*" icon="bi-gift">Dons à la fondation</x-admin-nav-link>
+
+        <div class="admin-nav-section-title">Cotisations</div>
+        <x-admin-nav-link route="admin.cotisations.paiements.index" active="admin.cotisations.paiements.*" icon="bi-wallet2">
+            Paiements
+            @php $nbCotPending = \App\Models\PaiementCotisation::where('statut','en_attente')->count(); @endphp
+            @if ($nbCotPending > 0)<span class="badge bg-warning text-dark ms-auto" style="font-size:.6rem;">{{ $nbCotPending }}</span>@endif
+        </x-admin-nav-link>
+        <x-admin-nav-link route="admin.cotisations.types.index" active="admin.cotisations.types.*" icon="bi-sliders">Paramétrage</x-admin-nav-link>
+
+        <div class="admin-nav-section-title">Annuaire Alumni</div>
+        <x-admin-nav-link route="admin.entreprises.index" active="admin.entreprises.*" icon="bi-building">Entreprises Alumni</x-admin-nav-link>
 
         <div class="admin-nav-section-title">Communauté</div>
         <x-admin-nav-link route="admin.evenements.index" active="admin.evenements.*" icon="bi-calendar-event">Événements</x-admin-nav-link>
         <x-admin-nav-link route="admin.emplois.index" active="admin.emplois.*" icon="bi-briefcase">Offres d'emploi</x-admin-nav-link>
         <x-admin-nav-link route="admin.annonces.index" active="admin.annonces.*" icon="bi-megaphone">Annonces membres</x-admin-nav-link>
+        <x-admin-nav-link route="admin.competitions.index" active="admin.competitions.*" icon="bi-trophy">
+            Compétitions
+            @php $nbCompOuvertes = \App\Models\Competition::where('statut','ouverte')->count(); @endphp
+            @if ($nbCompOuvertes > 0)<span class="badge bg-success ms-auto" style="font-size:.6rem;">{{ $nbCompOuvertes }}</span>@endif
+        </x-admin-nav-link>
+
+        <div class="admin-nav-section-title">Système</div>
+        <x-admin-nav-link route="admin.notifications.index" active="admin.notifications.*" icon="bi-bell">
+            Notifications
+            @php $nbNotifsAdmin = auth()->user()->unreadNotifications()->count(); @endphp
+            @if ($nbNotifsAdmin > 0)
+                <span class="badge bg-danger ms-auto" style="font-size:.6rem;">{{ $nbNotifsAdmin }}</span>
+            @endif
+        </x-admin-nav-link>
 
         <div class="admin-nav-section-title">Site vitrine</div>
         <x-admin-nav-link route="admin.slides.index" active="admin.slides.*" icon="bi-images">Slider (Hero)</x-admin-nav-link>
@@ -173,6 +204,16 @@
             @php
                 $notificationsNonLues = auth()->user()->unreadNotifications()->latest()->take(5)->get();
                 $nombreNonLues = auth()->user()->unreadNotifications()->count();
+                $dropdownTypesConfig = [
+                    'projet_soumis'           => ['label' => 'Projet',         'couleur' => 'warning',   'icon' => 'bi-lightbulb'],
+                    'promesse_investissement'  => ['label' => 'Investissement', 'couleur' => 'success',   'icon' => 'bi-cash-stack'],
+                    'nouveau_don'             => ['label' => 'Don',             'couleur' => 'info',      'icon' => 'bi-gift'],
+                    'entreprise_soumise'      => ['label' => 'Entreprise',      'couleur' => 'primary',   'icon' => 'bi-building'],
+                    'offre_emploi_soumise'    => ['label' => 'Offre d\'emploi', 'couleur' => 'secondary', 'icon' => 'bi-briefcase'],
+                    'candidature_emploi'      => ['label' => 'Candidature',     'couleur' => 'primary',   'icon' => 'bi-person-check'],
+                    'candidature_competition' => ['label' => 'Compétition',     'couleur' => 'warning',   'icon' => 'bi-trophy'],
+                    'nouvelle_demande'        => ['label' => 'Adhésion',        'couleur' => 'danger',    'icon' => 'bi-person-plus'],
+                ];
             @endphp
             <div class="dropdown">
                 <button class="btn btn-sm btn-light position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -183,13 +224,12 @@
                         </span>
                     @endif
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width:300px;">
-                    <li class="dropdown-header d-flex justify-content-between align-items-center">
-                        <span>Notifications</span>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm p-0 overflow-hidden" style="min-width:320px;">
+                    <li class="px-3 py-2 d-flex justify-content-between align-items-center border-bottom bg-light">
+                        <span class="fw-semibold small">Notifications non lues</span>
                         @if ($nombreNonLues > 0)
                             <form method="POST" action="{{ route('admin.notifications.tout-lire') }}" class="m-0">
-                                @csrf
-                                @method('PATCH')
+                                @csrf @method('PATCH')
                                 <button type="submit" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:.72rem;">
                                     <i class="bi bi-check2-all me-1"></i>Tout lire
                                 </button>
@@ -197,20 +237,36 @@
                         @endif
                     </li>
                     @forelse ($notificationsNonLues as $notif)
-                        <li>
+                        @php
+                            $dt   = $notif->data;
+                            $dcfg = $dropdownTypesConfig[$dt['type'] ?? ''] ?? ['label' => 'Système', 'couleur' => 'secondary', 'icon' => 'bi-bell'];
+                        @endphp
+                        <li class="border-bottom">
                             <form method="POST" action="{{ route('admin.notifications.lue', $notif->id) }}">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="dropdown-item small text-wrap text-start">
-                                    <div class="fw-semibold">{{ $notif->data['titre'] ?? '' }}</div>
-                                    <div class="text-muted">{{ $notif->data['message'] ?? '' }}</div>
-                                    <div class="text-muted" style="font-size:0.7rem;">{{ $notif->created_at->diffForHumans() }}</div>
+                                @csrf @method('PATCH')
+                                <button type="submit" class="w-100 text-start px-3 py-2 border-0 bg-transparent d-flex gap-2 align-items-start" style="cursor:pointer;">
+                                    <span class="badge text-bg-{{ $dcfg['couleur'] }} flex-shrink-0 mt-1 d-flex align-items-center justify-content-center"
+                                          style="width:28px;height:28px;border-radius:6px;font-size:.85rem;">
+                                        <i class="bi {{ $dcfg['icon'] }}"></i>
+                                    </span>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="d-flex align-items-center gap-1 mb-1">
+                                            <span class="badge text-bg-{{ $dcfg['couleur'] }}" style="font-size:.6rem;">{{ $dcfg['label'] }}</span>
+                                        </div>
+                                        <div class="small fw-semibold text-dark" style="white-space:normal;line-height:1.3;">{{ $dt['titre'] ?? '' }}</div>
+                                        <div class="text-muted" style="font-size:.75rem;">{{ $notif->created_at->diffForHumans() }}</div>
+                                    </div>
                                 </button>
                             </form>
                         </li>
                     @empty
-                        <li><span class="dropdown-item-text text-muted small">Aucune nouvelle notification.</span></li>
+                        <li><span class="d-block text-muted small text-center py-3">Aucune nouvelle notification.</span></li>
                     @endforelse
+                    <li class="border-top">
+                        <a href="{{ route('admin.notifications.index') }}" class="d-block text-center small py-2 text-faaci-steel text-decoration-none">
+                            <i class="bi bi-list-ul me-1"></i> Voir toutes les notifications
+                        </a>
+                    </li>
                 </ul>
             </div>
             <span class="text-muted small d-none d-sm-inline">{{ auth()->user()->nom_complet }}</span>
@@ -219,11 +275,20 @@
 
     <main class="container-fluid p-3 p-md-4">
         @if (session('status'))
-            <div class="alert alert-success">{{ session('status') }}</div>
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="bi bi-check-circle me-2"></i>{{ session('status') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         @endif
-
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
         @if ($errors->any())
-            <div class="alert alert-danger">
+            <div class="alert alert-danger alert-dismissible fade show">
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -267,5 +332,60 @@ $(function () {
 });
 </script>
 @stack('scripts')
+
+{{-- Modal confirmation globale --}}
+<div class="modal fade" id="faacConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3" style="font-size:2.5rem;line-height:1;">
+                    <i class="bi bi-question-circle text-warning"></i>
+                </div>
+                <p id="faacConfirmMessage" class="fw-medium mb-4 text-dark"></p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-4"
+                            data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger btn-sm px-4"
+                            id="faacConfirmOk">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    let _pendingForm = null;
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalEl  = document.getElementById('faacConfirmModal');
+        const modal    = new bootstrap.Modal(modalEl);
+        const msgEl    = document.getElementById('faacConfirmMessage');
+        const okBtn    = document.getElementById('faacConfirmOk');
+
+        document.addEventListener('submit', function (e) {
+            const msg = e.target.dataset.confirm;
+            if (!msg) return;
+            e.preventDefault();
+            e.stopPropagation();
+            msgEl.textContent = msg;
+            _pendingForm = e.target;
+            modal.show();
+        }, true);
+
+        okBtn.addEventListener('click', function () {
+            modal.hide();
+            if (_pendingForm) {
+                const f = _pendingForm;
+                _pendingForm = null;
+                delete f.dataset.confirm;
+                f.submit();
+            }
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            _pendingForm = null;
+        });
+    });
+})();
+</script>
 </body>
 </html>

@@ -4,7 +4,6 @@
     $logoUrl    = !empty($parametres['logo']) ? $parametres['logo'] : asset('images/logo.jpg');
 
     $isApropos  = request()->routeIs('apropos*');
-    $isGalerie  = request()->routeIs('galerie*');
 
     if (auth()->check()) {
         $userNav = auth()->user();
@@ -78,10 +77,6 @@
         <a href="{{ $home }}#actualites"
            class="nav-link px-3"
            data-section="actualites">Actualités</a>
-
-        <a href="{{ route('galerie.index') }}"
-           class="nav-link px-3 @if($isGalerie) active @endif"
-           data-section="galerie">Galerie</a>
 
         <a href="{{ $home }}#contact"
            class="nav-link px-3"
@@ -173,10 +168,6 @@
       <a href="{{ $home }}#actualites"
          class="nav-mobile-link text-decoration-none p-3 rounded fw-medium"
          data-section="actualites">Actualités</a>
-
-      <a href="{{ route('galerie.index') }}"
-         class="nav-mobile-link text-decoration-none p-3 rounded fw-medium @if($isGalerie) active @endif"
-         data-section="galerie">Galerie</a>
 
       <a href="{{ $home }}#contact"
          class="nav-mobile-link text-decoration-none p-3 rounded fw-medium"

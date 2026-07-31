@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', $evenement->titre)
 
@@ -80,10 +80,10 @@
                     <div class="alert alert-success text-center mb-2 small">
                         <i class="bi bi-check-circle me-1"></i> Vous êtes inscrit(e) !
                     </div>
-                    <form method="POST" action="{{ route('membre.evenements.desinscrire', $evenement) }}">
+                    <form method="POST" action="{{ route('membre.evenements.desinscrire', $evenement) }}"
+                          data-confirm="Se désinscrire de cet événement ?">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-outline-danger w-100 btn-sm"
-                                onclick="return confirm('Se désinscrire de cet événement ?')">
+                        <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
                             Se désinscrire
                         </button>
                     </form>

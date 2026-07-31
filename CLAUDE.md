@@ -154,15 +154,22 @@ auth()->check()
 ### B. ESPACE MEMBRE (authentifié, statut `actif` requis)
 
 #### 4. Annuaire des membres
-- Profils enrichis (photo, bio, promotion AIESEC, secteur, ville, compétences)
+- Profils enrichis (photo, bio, promotion AIESEC, **comité local**, secteur, ville, compétences)
 - Recherche et filtres avancés
 - Mise en relation
 - Badge "vérifié"
 
-#### 5. Base entreprises Alumni
-- Fiches entreprises (logo, secteur, localisation, contacts)
-- Lien membres-entreprises
-- Création par membre, validation admin
+#### 4bis. Annuaire entreprises Alumni
+- Fiches entreprises créées et rattachées à un membre (1 membre = N entreprises)
+- Champs : nom, secteur, description, localisation, site web, téléphone, email, année création, logo
+- Workflow : soumission membre → validation admin → publication dans l'annuaire
+- Statuts : `en_attente`, `actif`, `rejete`, `inactif`
+- Modification soumise à re-validation si l'entreprise était active
+- CRUD complet backoffice admin (valider, rejeter, désactiver, réactiver)
+- Table : `entreprises`
+- Modèle : `App\Models\Entreprise`
+
+#### 5. Projets à financer
 
 #### 6. Projets à financer
 - Soumission de projet (titre, description, images, documents)
@@ -170,18 +177,31 @@ auth()->check()
 - Cycle de vie : `brouillon → en_attente → valide → en_financement → finance → en_cours → termine` (+ `rejete`)
 - Validation admin obligatoire
 
-#### 7. Module financement (CRITIQUE)
+#### 7. Module investissement (CRITIQUE)
 **⚠️ Aucun paiement en ligne — tout est externe et validé manuellement.**
 
+> **Renommage** : anciennement "contribution", désormais appelé **investissement** dans l'UI et dans la BDD (table `investissements`). Le modèle s'appelle toujours `Contribution` (PHP) mais `$table = 'investissements'`.
+
 Workflow :
-1. Membre crée une promesse de financement
+1. Membre crée une promesse d'investissement sur un projet
 2. Statut → `pending`
 3. Paiement effectué hors plateforme (cash, Orange Money, Wave, virement)
 4. Membre déclare le paiement avec preuve optionnelle
 5. Admin valide manuellement
 6. Statut → `paid`
 
-Statuts contribution : `pending`, `confirmed`, `paid`, `partial`, `cancelled`
+Statuts investissement : `pending`, `confirmed`, `paid`, `partial`, `cancelled`
+
+#### 7bis. Module Dons / Contributions à la fondation
+Un membre peut faire un don libre à la fondation (indépendant de tout projet).
+
+- **Nature du don** : `argent`, `materiel`, `autre`
+- Si argent : champs montant (FCFA) + moyen de paiement
+- Si matériel/autre : champ valeur estimée (texte libre)
+- Preuve optionnelle (image ou PDF)
+- Validation manuelle par admin (statuts : `en_attente`, `confirme`, `rejete`, `annule`)
+- Table : `dons`
+- Modèle : `App\Models\Don`
 
 #### 8. Opportunités d'affaires
 - Appel d'offres, partenariat, sous-traitance, fournisseurs
@@ -319,10 +339,9 @@ Tout le contenu public est éditable depuis le backoffice :
 utilisateurs                  → membres et admins (avec champ statut)
 
 ─── Espace membre ───
-entreprises                   → fiches entreprises Alumni
-entreprise_utilisateur        → pivot (rôle dans l'entreprise)
+entreprises                   → fiches entreprises Alumni (liées à un membre propriétaire, validation admin)
 projets                       → projets à financer
-contributions                 → promesses et paiements
+investissements               → promesses d'investissement sur projets (ancienne table contributions)
 opportunites                  → opportunités d'affaires
 offres_emploi                 → offres de poste
 candidatures                  → postulations aux offres d'emploi
@@ -343,6 +362,7 @@ images_galerie                → photos liées aux albums
 notifications                 → notifications natives Laravel
 logs_activite                 → journal d'activité
 medias                        → fichiers (Spatie MediaLibrary)
+dons                          → dons à la fondation (argent, matériel, autre) avec validation admin
 visites                       → tracking des visites du site vitrine
 ```
 

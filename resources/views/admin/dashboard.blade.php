@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Tableau de bord')
 @section('page-title', 'Tableau de bord')
@@ -175,8 +175,7 @@
                             <form method="POST" action="{{ route('admin.projets.valider', $p) }}">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="btn btn-sm btn-success"
-                                        title="Valider → En financement"
-                                        onclick="return confirm('Mettre ce projet en financement ?')">
+                                        title="Valider → En financement">
                                     <i class="bi bi-check-lg"></i>
                                 </button>
                             </form>
@@ -224,11 +223,10 @@
                             <span class="badge bg-{{ $statBadge }} mt-1" style="font-size:0.65rem;">{{ $statLib }}</span>
                         </div>
                         <div class="d-flex gap-1 flex-shrink-0">
-                            <form method="POST" action="{{ route('admin.contributions.valider', $c) }}">
+                            <form method="POST" action="{{ route('admin.contributions.valider', $c) }}"
+                                  data-confirm="Valider ce paiement de {{ number_format($c->montant_paye, 0, ',', ' ') }} FCFA ?">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="btn btn-sm btn-success"
-                                        title="Valider le paiement"
-                                        onclick="return confirm('Valider ce paiement de {{ number_format($c->montant_paye, 0, ',', ' ') }} FCFA ?')">
+                                <button type="submit" class="btn btn-sm btn-success" title="Valider le paiement">
                                     <i class="bi bi-check-lg"></i>
                                 </button>
                             </form>

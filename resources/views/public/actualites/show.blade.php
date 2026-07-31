@@ -22,32 +22,54 @@
 
 <section class="section bg-white">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 fade-in">
+        @php $hasPhotos = $article->photos->isNotEmpty(); @endphp
+
+        <div class="row g-5">
+
+            {{-- Colonne gauche : contenu de l'article --}}
+            <div class="{{ $hasPhotos ? 'col-lg-9' : 'col-lg-8 mx-auto' }} fade-in">
                 @if ($article->image_url)
-                    <img src="{{ $article->image_url }}" alt="{{ $article->titre }}" class="img-fluid rounded-3 mb-4">
+                    <img src="{{ $article->image_url }}" alt="{{ $article->titre }}"
+                         class="img-fluid rounded-3 mb-4 w-100" style="max-height:400px;object-fit:cover;">
                 @endif
                 <div class="section-lead rich-content">
                     {!! $article->contenu !!}
                 </div>
-
-                @if ($article->photos->isNotEmpty())
-                    <hr class="my-4">
-                    <h3 class="h5 fw-semibold mb-3">Galerie photos</h3>
-                    <div class="row g-2">
-                        @foreach ($article->photos as $photo)
-                            <div class="col-6 col-md-4">
-                                <a href="{{ $photo->getUrl() }}" target="_blank" class="d-block">
-                                    <img src="{{ $photo->getUrl('thumb') ?: $photo->getUrl() }}"
-                                         alt="{{ $article->titre }}"
-                                         class="img-fluid rounded-2 w-100"
-                                         style="height:180px;object-fit:cover;">
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
             </div>
+
+            {{-- Colonne droite : galerie photos (uniquement si des photos existent) --}}
+            @if ($hasPhotos)
+                <div class="col-lg-3 fade-in">
+                    <div class="sticky-top" style="top:90px;">
+                        <h3 class="h5 fw-semibold mb-3">
+                            <i class="bi bi-images me-2 text-faaci-steel"></i>Galerie photos
+                            <span class="badge rounded-pill ms-1"
+                                  style="background:rgba(74,127,165,0.12);color:var(--faaci-steel);font-size:0.75rem;">
+                                {{ $article->photos->count() }}
+                            </span>
+                        </h3>
+
+                        <div class="row g-2">
+                            @foreach ($article->photos as $i => $photo)
+                                <div class="{{ $article->photos->count() === 1 ? 'col-12' : 'col-6' }}">
+                                    <a href="{{ $photo->getUrl() }}"
+                                       class="glightbox d-block rounded-2 overflow-hidden"
+                                       data-gallery="article-{{ $article->id }}"
+                                       data-glightbox="description: {{ $article->titre }}">
+                                        <img src="{{ $photo->getUrl() }}"
+                                             alt="{{ $article->titre }} — photo {{ $i + 1 }}"
+                                             class="img-fluid w-100"
+                                             style="height:{{ $article->photos->count() === 1 ? '320px' : '110px' }};object-fit:cover;transition:transform .25s,opacity .2s;"
+                                             onmouseover="this.style.transform='scale(1.04)';this.style.opacity='.9'"
+                                             onmouseout="this.style.transform='scale(1)';this.style.opacity='1'">
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+
         </div>
     </div>
 </section>
@@ -71,3 +93,15 @@
 @endif
 
 @endsection
+
+@if ($article->photos->isNotEmpty())
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+@endpush
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<script>
+GLightbox({ selector: '.glightbox', touchNavigation: true, loop: true });
+</script>
+@endpush
+@endif

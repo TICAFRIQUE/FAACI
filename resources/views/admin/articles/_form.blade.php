@@ -1,4 +1,4 @@
-@php
+﻿@php
     $article ??= null;
 @endphp
 
@@ -81,24 +81,20 @@
         {{-- Photos existantes (édition) --}}
         @if ($article && $article->photos->isNotEmpty())
             <p class="small fw-semibold text-muted mb-1">Photos enregistrées</p>
-            <div class="row g-2 mb-3">
+            <div class="row g-2 mb-3" id="existingPhotosGrid">
                 @foreach ($article->photos as $photo)
-                    <div class="col-6 col-md-3 col-lg-2">
+                    <div class="col-6 col-md-3 col-lg-2" id="photo-{{ $photo->id }}">
                         <div class="position-relative">
                             <img src="{{ $photo->getUrl() }}" alt=""
                                  class="img-thumbnail w-100" style="height:100px;object-fit:cover;">
-                            <form method="POST"
-                                  action="{{ route('admin.articles.photos.destroy', [$article, $photo]) }}"
-                                  onsubmit="return confirm('Supprimer définitivement cette photo ?')"
-                                  class="position-absolute top-0 end-0 m-1">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                        class="btn btn-danger btn-sm rounded-circle d-flex align-items-center justify-content-center"
-                                        title="Supprimer"
-                                        style="width:26px;height:26px;padding:0;font-size:0.75rem;">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </form>
+                            <button type="button"
+                                    class="btn btn-danger btn-sm rounded-circle d-flex align-items-center justify-content-center position-absolute top-0 end-0 m-1 btn-delete-photo"
+                                    data-url="{{ route('admin.articles.photos.destroy', [$article, $photo]) }}"
+                                    data-photo-id="{{ $photo->id }}"
+                                    title="Supprimer"
+                                    style="width:26px;height:26px;padding:0;font-size:0.75rem;">
+                                <i class="bi bi-x"></i>
+                            </button>
                         </div>
                     </div>
                 @endforeach
@@ -202,5 +198,50 @@
 
     window.__removePhoto = removeQueued;
 })();
+
+/* ── Suppression des photos existantes via fetch (pas de form imbriqué) ── */
+document.querySelectorAll('.btn-delete-photo').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const url     = this.dataset.url;
+        const photoId = this.dataset.photoId;
+
+        const modalEl = document.getElementById('faacConfirmModal');
+        const modal   = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const msgEl   = document.getElementById('faacConfirmMessage');
+        const okBtn   = document.getElementById('faacConfirmOk');
+
+        msgEl.textContent = 'Supprimer définitivement cette photo ?';
+
+        function onConfirm() {
+            okBtn.removeEventListener('click', onConfirm);
+            modal.hide();
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: new URLSearchParams({ _method: 'DELETE' }),
+            })
+            .then(function (res) {
+                if (res.ok) {
+                    const el = document.getElementById('photo-' + photoId);
+                    if (el) el.remove();
+                } else {
+                    console.error('Suppression échouée', res.status);
+                }
+            })
+            .catch(function (err) { console.error('Erreur réseau', err); });
+        }
+
+        // Nettoyer les anciens listeners avant d'en ajouter un nouveau
+        const freshOkBtn = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(freshOkBtn, okBtn);
+        freshOkBtn.addEventListener('click', onConfirm);
+
+        modal.show();
+    });
+});
 </script>
 @endpush

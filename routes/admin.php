@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\AccueilController;
+use App\Http\Controllers\Admin\CompetitionController as CompetitionAdminController;
 use App\Http\Controllers\Admin\ActiviteController;
 use App\Http\Controllers\Admin\ContributionController;
+use App\Http\Controllers\Admin\CotisationAdminController;
+use App\Http\Controllers\Admin\TypeCotisationController;
+use App\Http\Controllers\Admin\DonController as DonAdminController;
+use App\Http\Controllers\Admin\EntrepriseController as EntrepriseAdminController;
 use App\Http\Controllers\Admin\ProjetController as ProjetAdminController;
-use App\Http\Controllers\Admin\AlbumGalerieController;
 use App\Http\Controllers\Admin\AProposController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -60,8 +64,10 @@ Route::prefix('admin')
         });
 
         // Notifications internes
+        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::patch('notifications/tout-lire', [NotificationController::class, 'marquerToutesLues'])->name('notifications.tout-lire');
         Route::patch('notifications/{notification}/lue', [NotificationController::class, 'marquerLue'])->name('notifications.lue');
+        Route::patch('notifications/{notification}/lue-seulement', [NotificationController::class, 'marquerLueSeulement'])->name('notifications.lue-seulement');
 
         // Annonces membres
         Route::resource('annonces', AnnonceController::class)->except(['show']);
@@ -121,17 +127,54 @@ Route::prefix('admin')
         Route::patch('projets/{projet}/valider', [ProjetAdminController::class, 'valider'])->name('projets.valider');
         Route::patch('projets/{projet}/rejeter', [ProjetAdminController::class, 'rejeter'])->name('projets.rejeter');
         Route::patch('projets/{projet}/statut', [ProjetAdminController::class, 'changerStatut'])->name('projets.statut');
+        Route::get('projets/{projet}/export/pdf', [ProjetAdminController::class, 'exportPdf'])->name('projets.export.pdf');
+        Route::get('projets/{projet}/export/csv', [ProjetAdminController::class, 'exportCsv'])->name('projets.export.csv');
 
         Route::get('contributions', [ContributionController::class, 'index'])->name('contributions.index');
         Route::get('contributions/{contribution}', [ContributionController::class, 'show'])->name('contributions.show');
-        Route::patch('contributions/{contribution}/valider', [ContributionController::class, 'valider'])->name('contributions.valider');
-        Route::patch('contributions/{contribution}/rejeter', [ContributionController::class, 'rejeter'])->name('contributions.rejeter');
+        Route::post('contributions/{contribution}/paiement', [ContributionController::class, 'enregistrerPaiement'])->name('contributions.paiement');
 
-        // Galerie (albums + images)
-        Route::resource('galerie', AlbumGalerieController::class)->except(['show']);
-        Route::patch('galerie/{galerie}/basculer', [AlbumGalerieController::class, 'basculer'])->name('galerie.basculer');
-        Route::patch('galerie/{galerie}/deplacer', [AlbumGalerieController::class, 'deplacer'])->name('galerie.deplacer');
-        Route::post('galerie/{galerie}/images', [AlbumGalerieController::class, 'storeImages'])->name('galerie.images.store');
-        Route::delete('galerie/{galerie}/images/{image}', [AlbumGalerieController::class, 'destroyImage'])->name('galerie.images.destroy');
-        Route::patch('galerie/{galerie}/images/{image}/deplacer', [AlbumGalerieController::class, 'deplacerImage'])->name('galerie.images.deplacer');
+        // Dons à la fondation
+        Route::get('dons', [DonAdminController::class, 'index'])->name('dons.index');
+        Route::get('dons/{don}', [DonAdminController::class, 'show'])->name('dons.show');
+        Route::patch('dons/{don}/confirmer', [DonAdminController::class, 'confirmer'])->name('dons.confirmer');
+        Route::patch('dons/{don}/rejeter', [DonAdminController::class, 'rejeter'])->name('dons.rejeter');
+
+        // Annuaire entreprises Alumni
+        Route::get('entreprises', [EntrepriseAdminController::class, 'index'])->name('entreprises.index');
+        Route::get('entreprises/{entreprise}', [EntrepriseAdminController::class, 'show'])->name('entreprises.show');
+        Route::patch('entreprises/{entreprise}/valider', [EntrepriseAdminController::class, 'valider'])->name('entreprises.valider');
+        Route::patch('entreprises/{entreprise}/rejeter', [EntrepriseAdminController::class, 'rejeter'])->name('entreprises.rejeter');
+        Route::patch('entreprises/{entreprise}/desactiver', [EntrepriseAdminController::class, 'desactiver'])->name('entreprises.desactiver');
+        Route::patch('entreprises/{entreprise}/reactiver', [EntrepriseAdminController::class, 'reactiver'])->name('entreprises.reactiver');
+
+        // ── Compétitions Alumni ───────────────────────────────────────────
+        Route::resource('competitions', CompetitionAdminController::class)->except(['show']);
+        Route::get('competitions/{competition}', [CompetitionAdminController::class, 'show'])->name('competitions.show');
+        Route::get('competitions/{competition}/candidatures', [CompetitionAdminController::class, 'candidatures'])->name('competitions.candidatures');
+        Route::patch('competitions/{competition}/candidatures/{candidature}', [CompetitionAdminController::class, 'majCandidature'])->name('competitions.candidatures.maj');
+
+        // ── Cotisations ──────────────────────────────────────────────────
+        // Types de cotisation
+        Route::resource('cotisations/types', TypeCotisationController::class)->except(['show'])
+            ->names([
+                'index'   => 'cotisations.types.index',
+                'create'  => 'cotisations.types.create',
+                'store'   => 'cotisations.types.store',
+                'edit'    => 'cotisations.types.edit',
+                'update'  => 'cotisations.types.update',
+                'destroy' => 'cotisations.types.destroy',
+            ]);
+
+        // Paiements globaux
+        Route::get('cotisations/paiements', [CotisationAdminController::class, 'index'])->name('cotisations.paiements.index');
+        Route::get('cotisations/paiements/{paiement}', [CotisationAdminController::class, 'show'])->name('cotisations.paiements.show');
+        Route::patch('cotisations/paiements/{paiement}/valider', [CotisationAdminController::class, 'valider'])->name('cotisations.paiements.valider');
+        Route::patch('cotisations/paiements/{paiement}/rejeter', [CotisationAdminController::class, 'rejeter'])->name('cotisations.paiements.rejeter');
+
+        // Calendrier et paiement pour un membre spécifique
+        Route::get('cotisations/membres/{membre}', [CotisationAdminController::class, 'membreCalendrier'])->name('cotisations.membre');
+        Route::post('cotisations/membres/{membre}/paiement', [CotisationAdminController::class, 'membrePaiement'])->name('cotisations.membre.paiement');
+        Route::patch('cotisations/lignes/{cotisation}/exonerer', [CotisationAdminController::class, 'exonerer'])->name('cotisations.exonerer');
+
     });

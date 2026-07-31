@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Événements')
 @section('page-title', 'Événements')
@@ -112,7 +112,7 @@
                             <a href="{{ route('admin.evenements.show', $ev) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
                             <a href="{{ route('admin.evenements.edit', $ev) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                             <form method="POST" action="{{ route('admin.evenements.destroy', $ev) }}" class="d-inline"
-                                  onsubmit="return confirm('Supprimer « {{ $ev->titre }} » ?')">
+                                  data-confirm="Supprimer « {{ $ev->titre }} » ?">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                             </form>

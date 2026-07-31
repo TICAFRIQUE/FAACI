@@ -1,4 +1,4 @@
-<div class="d-flex gap-1 flex-wrap">
+﻿<div class="d-flex gap-1 flex-wrap">
     <a href="{{ route('admin.projets.show', $p) }}"
        class="btn btn-sm btn-outline-secondary" title="Voir le détail">
         <i class="bi bi-eye"></i>
@@ -6,8 +6,7 @@
     @if (in_array($p->statut, ['en_attente', 'valide']))
         <form method="POST" action="{{ route('admin.projets.valider', $p) }}" class="m-0">
             @csrf @method('PATCH')
-            <button type="submit" class="btn btn-sm btn-success" title="Mettre en financement"
-                    onclick="return confirm('Mettre ce projet en financement ?')">
+            <button type="submit" class="btn btn-sm btn-success" title="Mettre en financement">
                 <i class="bi bi-check-lg"></i>
             </button>
         </form>

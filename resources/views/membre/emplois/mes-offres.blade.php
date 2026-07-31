@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Mes offres d\'emploi')
 
@@ -61,7 +61,7 @@
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <form method="POST" action="{{ route('membre.emplois.destroy', $offre) }}" class="d-inline"
-                                          onsubmit="return confirm('Supprimer cette offre ?')">
+                                          data-confirm="Supprimer cette offre ?">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger">
                                             <i class="bi bi-trash"></i>

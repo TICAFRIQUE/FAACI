@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Activités')
 @section('page-title', 'Activités — Domaines d\'action')
@@ -64,7 +64,7 @@
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <form method="POST" action="{{ route('admin.activites.destroy', $activite) }}" class="d-inline"
-                                  onsubmit="return confirm('Supprimer cette activité ?');">
+                                  data-confirm="Supprimer cette activité ?">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                     <i class="bi bi-trash"></i>

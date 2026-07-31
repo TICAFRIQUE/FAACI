@@ -15,17 +15,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RoleSeeder::class);
+
+        // Contenu site vitrine
         $this->call(ContenuSectionSeeder::class);
         $this->call(ParametreSiteSeeder::class);
         $this->call(ActiviteSeeder::class);
         $this->call(ValeurSeeder::class);
-        $this->call(MembreSeeder::class);
         $this->call(SlideSeeder::class);
         $this->call(EquipeSeeder::class);
-        $this->call(ArticleSeeder::class);
-        $this->call(EvenementSeeder::class);
-        $this->call(OffreEmploiSeeder::class);
-        $this->call(ProjetSeeder::class);
-        $this->call(AnnonceSeeder::class);
     }
 }
