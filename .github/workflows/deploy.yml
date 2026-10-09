@@ -40,6 +40,9 @@ jobs:
             --exclude='storage/logs/' \
             --exclude='storage/framework/sessions/' \
             --exclude='storage/framework/cache/' \
+            --exclude='storage/app/public/*' \
+            --exclude='storage/app/private/*' \
+            --exclude='public/storage' \
             --exclude='tests/' \
             -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_DIR }}/
